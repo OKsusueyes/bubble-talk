@@ -30,36 +30,40 @@
             color: white;
         }
 
+        /* 🌟 전체 UI 그림자를 채팅창과 동일한 회색(rgba(0,0,0,0.3)) 및 4px 너비로 통일 */
         .ui-container { position: absolute; top: 20px; left: 20px; z-index: 10; display: flex; flex-direction: column; gap: 8px; }
         .select-group { display: flex; gap: 10px; }
         select { 
             padding: 8px; font-size: 1rem; font-family: 'DungGeunMo', sans-serif;
             border: 3px solid #000; border-radius: 0; outline: none; 
-            background: #fff; box-shadow: 4px 4px 0px #000; cursor: pointer;
+            background: #fff; box-shadow: 4px 4px 0px rgba(0,0,0,0.3); cursor: pointer;
         }
         
-        /* 🌟 안내 문구: 왼쪽 정렬 적용 */
         .instruction-text {
             font-size: 0.85rem; color: #000; background: #fff; border: 2px solid #000; 
-            padding: 6px 10px; width: max-content; box-shadow: 2px 2px 0px #000; margin-top: 5px;
+            padding: 6px 10px; width: max-content; box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
             text-align: left; line-height: 1.4;
         }
 
-        /* 🌟 채팅창: 가로 폭 기준(box-sizing)을 입력창과 완벽 통일 */
+        /* 🌟 업데이트 노트 박스 추가 */
+        .update-notice {
+            display: block; font-size: 0.85rem; color: #000; background: #fff; border: 2px solid #000;
+            padding: 6px 10px; width: max-content; box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+            text-decoration: none; font-weight: bold; cursor: pointer; margin-top: 2px;
+        }
+        .update-notice:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,0.3); }
+
         .chat-log { 
             box-sizing: border-box;
             position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); 
-            width: 90%; max-width: 350px; 
-            height: 105px; 
+            width: 90%; max-width: 350px; height: 105px; 
             background: rgba(255, 255, 255, 0.4); 
-            border: 3px solid #000; border-radius: 0; box-shadow: 5px 5px 0px rgba(0,0,0,0.3);
+            border: 3px solid #000; border-radius: 0; box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
             padding: 8px 10px; overflow-y: auto; z-index: 5; 
             display: flex; flex-direction: column; gap: 5px; 
         }
         
         .log-item { font-size: 0.8rem; color: #000; word-break: break-all; text-shadow: none; }
-        
-        /* 🌟 닉네임 배경색 하얀색(solid)으로 통일 */
         .log-nickname { font-weight: normal; color: #000; background: #ffffff; border: 1px solid #000; padding: 0 4px; margin-right: 5px; }
         
         .log-notice { color: #555; font-size: 0.75rem; background: rgba(238, 238, 238, 0.7); border: 1px dashed #aaa; padding: 3px; }
@@ -67,32 +71,39 @@
         .notice-text { font-style: italic; }
 
         .notice-banner {
-            position: absolute; top: 120px; left: 50%; transform: translateX(-50%);
-            color: #fff; background: #000; border: 3px solid #fff; box-shadow: 4px 4px 0px #000;
+            position: absolute; top: 150px; left: 50%; transform: translateX(-50%);
+            color: #fff; background: #000; border: 3px solid #fff; box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
             padding: 5px 15px; font-size: 1rem; z-index: 30; pointer-events: none; width: max-content; text-align: center;
         }
 
-        /* 🌟 입력창 + 버튼: 가로 폭 완벽 매칭 및 버튼 추가 */
+        /* 🌟 입력창과 버튼을 하나로 합친 컨테이너 디자인 */
         .chat-container { 
             box-sizing: border-box;
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); 
             width: 90%; max-width: 350px; z-index: 10; 
-            display: flex; gap: 5px;
         }
-        input[type="text"] { 
-            flex: 1; /* 남은 공간을 꽉 채움 */
-            box-sizing: border-box; padding: 12px 15px; font-size: 1rem; font-family: 'DungGeunMo', sans-serif;
-            border: 3px solid #000; border-radius: 0; box-shadow: 4px 4px 0px #000; outline: none; 
-        }
-        input[type="text"]:disabled { background-color: #ddd; color: #f00; border-color: #f00; }
         
-        /* 🌟 후~💨 전송 버튼 디자인 */
+        .input-wrapper {
+            display: flex; align-items: center; background: #fff;
+            border: 3px solid #000; box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+        }
+        
+        input[type="text"] { 
+            flex: 1; box-sizing: border-box; padding: 10px 15px; font-size: 1rem; 
+            font-family: 'DungGeunMo', sans-serif; border: none; outline: none; background: transparent;
+        }
+        input[type="text"]:disabled { background-color: #ddd; color: #f00; }
+
+        /* 🌟 입력창과 버튼 사이의 구분선 */
+        .divider { width: 2px; height: 20px; background-color: #aaa; margin: 0 5px; }
+
+        /* 🌟 입력창 내부에 포함된 투명한 전송 버튼 */
         #sendBtn {
             font-family: 'DungGeunMo', sans-serif; font-size: 1rem; font-weight: bold;
-            background: #ffffff; border: 3px solid #000; box-shadow: 4px 4px 0px #000; 
-            padding: 0 10px; cursor: pointer; outline: none;
+            background: transparent; border: none; padding: 10px 15px 10px 5px; 
+            cursor: pointer; outline: none; color: #000;
         }
-        #sendBtn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #000; }
+        #sendBtn:active { transform: translateY(2px); }
         
         #wand { 
             position: absolute; width: 40px; height: 40px; 
@@ -105,12 +116,10 @@
             width: 6px; height: 40px; background-color: #63B8FF; border: none; 
         }
         
-        /* 🌟 엔더 진주 느낌의 비트맵 원형 비눗방울 */
+        /* 🌟 비눗방울 다각형(계단식) 디자인 업그레이드 */
         .bubble { 
             position: absolute; 
             background-color: rgba(135, 206, 235, 0.4); 
-            
-            /* 마인크래프트 광택 텍스쳐 */
             background-image: 
                 linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)),
                 linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)),
@@ -118,21 +127,23 @@
             background-size: 15% 15%, 15% 15%, 15% 15%; 
             background-position: 15% 15%, 30% 15%, 15% 30%; background-repeat: no-repeat;
             
-            /* 검은 선 제거, 내부 픽셀 3D 음영 처리 */
             box-shadow: inset 0 0 0 4px rgba(100, 180, 230, 0.8), inset -6px -6px 0px rgba(100, 180, 230, 0.5); 
             
-            /* 🌟 핵심! 픽셀 느낌으로 팔각형 모양으로 모서리 잘라내기 (Ender Pearl 스타일) */
+            /* 마인크래프트 계단식 원형 폴리곤 (16각형으로 더 둥근 픽셀 느낌) */
             clip-path: polygon(
-                20% 0%, 80% 0%, 
-                100% 20%, 100% 80%, 
-                80% 100%, 20% 100%, 
-                0% 80%, 0% 20%
+                30% 0%, 70% 0%, 
+                80% 10%, 90% 20%, 
+                100% 30%, 100% 70%, 
+                90% 80%, 80% 90%, 
+                70% 100%, 30% 100%, 
+                20% 90%, 10% 80%, 
+                0% 70%, 0% 30%, 
+                10% 20%, 20% 10%
             );
             
             transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; 
         }
         
-        /* 🌟 비눗방울 안의 닉네임 배경색도 하얀색 */
         .bubble-nickname { font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffffff; padding: 0 4px; border: 1px solid rgba(100, 180, 230, 0.8); }
         .bubble-text { color: #000; font-size: 1rem; text-align: center; padding: 0 10px; word-break: break-all; text-shadow: 1px 1px 0px #fff; }
         
@@ -169,13 +180,17 @@
             </select>
         </div>
         <div class="instruction-text">꾹 누르면 나만의 비눗방울을 불 수 있어요!<br>대왕 비눗방울을 불어보세요!😗💨🫧</div>
+        <a href="https://app.notion.com/p/380e249edb9380e3bb2bde997219b8ae?source=copy_link" target="_blank" class="update-notice">💡Update Notice</a>
     </div>
     
     <div id="chatLog" class="chat-log"></div>
 
     <div class="chat-container">
-        <input type="text" id="chatInput" maxlength="20" placeholder="최대 20자 입력가능!" autocomplete="off">
-        <button id="sendBtn">후~💨</button>
+        <div class="input-wrapper">
+            <input type="text" id="chatInput" maxlength="20" placeholder="최대 20자 입력가능!" autocomplete="off">
+            <div class="divider"></div>
+            <button id="sendBtn">후~🫧</button>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -277,10 +292,10 @@
             const chatBubble = document.createElement('div');
             chatBubble.classList.add('bubble');
             
-            // 🌟 생성 위치: 채팅창 '바로 위쪽' 에서 스폰
+            // 🌟 생성 위치: 채팅창 바로 윗부분(195px)에 가깝게 스폰되어 겹치지 않도록 조절
             chatBubble.style.left = (Math.random() * 80 + 10) + '%';
-            chatBubble.style.bottom = '210px'; // 채팅창 바로 위쪽 픽셀!
-            chatBubble.style.top = 'auto'; // 확실히 bottom 기준으로 올라가게 세팅
+            chatBubble.style.bottom = '195px'; 
+            chatBubble.style.top = 'auto'; 
             
             const calculatedSize = 80 + (messageLength * 6); 
             chatBubble.style.width = calculatedSize + 'px';
@@ -299,7 +314,6 @@
             chatBubble.style.setProperty('--target-x', currentWind.x + 'px');
             chatBubble.style.setProperty('--target-y', currentWind.y);
             
-            // 🌟 수명 연장: 위쪽에서 시작하므로 애니메이션 시간을 1.5배 늘려 더 천천히 날아가게!
             const longerTime = currentWind.time * 1.5;
             chatBubble.style.animation = `blowAway ${longerTime}s linear forwards`; 
 
@@ -308,7 +322,6 @@
             setTimeout(() => { chatBubble.remove(); }, longerTime * 1000);
         }
 
-        // 🌟 전송 기능을 묶어둔 전용 함수 (엔터, 버튼 클릭 모두 대응)
         function sendMessage() {
             if (isChatBanned || chatInput.value.trim() === '') return; 
 
@@ -344,12 +357,10 @@
             chatInput.focus();
         }
 
-        // 🌟 엔터키 처리
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
 
-        // 🌟 버튼 클릭 처리
         sendBtn.addEventListener('click', sendMessage);
 
         socket.on('chat message', (data) => {
@@ -359,14 +370,14 @@
 
         let isBlowing = false, currentBubble = null, bubbleSize = 20, growInterval = null;
         gameArea.addEventListener('mousedown', (e) => {
-            // UI를 누를 때는 비눗방울 스폰 방지
-            if(e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target)) return;
+            // UI 요소들을 터치/클릭할 땐 비눗방울 생성 무시 (a태그도 추가)
+            if(e.target.tagName === 'A' || e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target)) return;
             
             isBlowing = true; bubbleSize = 20;
             wand.style.display = 'block'; wand.style.left = e.clientX + 'px'; wand.style.top = e.clientY + 'px';
             currentBubble = document.createElement('div'); currentBubble.classList.add('bubble');
             currentBubble.style.left = e.clientX + 'px'; currentBubble.style.top = e.clientY + 'px';
-            currentBubble.style.bottom = 'auto'; // 마우스 클릭시엔 top 기준으로 생성
+            currentBubble.style.bottom = 'auto';
             currentBubble.style.animation = 'none'; gameArea.appendChild(currentBubble);
             
             growInterval = setInterval(() => {
@@ -388,7 +399,7 @@
         });
         
         gameArea.addEventListener('touchstart', (e) => {
-            if(e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target)) return;
+            if(e.target.tagName === 'A' || e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target)) return;
             const touch = e.touches[0];
             const mouseEvent = new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY });
             gameArea.dispatchEvent(mouseEvent);
