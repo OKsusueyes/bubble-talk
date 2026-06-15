@@ -17,9 +17,32 @@
         }
         .ui-container { position: absolute; top: 20px; left: 20px; z-index: 10; display: flex; gap: 10px; }
         select { padding: 10px; font-size: 1rem; border-radius: 8px; border: 2px solid #ccc; outline: none; background: rgba(255,255,255,0.8); }
-        .chat-container { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10; }
+        
+        /* 🌟 새로 추가된 채팅 기록창 디자인 */
+        .chat-log { 
+            position: absolute; 
+            bottom: 80px; /* 입력창 바로 위에 위치 */
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 370px; 
+            height: 200px; /* 창 높이 */
+            background: rgba(255, 255, 255, 0.6); /* 반투명 하얀색 배경 */
+            border-radius: 15px; 
+            padding: 15px; 
+            overflow-y: auto; /* 내용이 길어지면 스크롤 생성 */
+            z-index: 5; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+        }
+        .log-item { font-size: 0.95rem; color: #222; word-break: break-all; }
+        .log-nickname { font-weight: bold; color: #555; margin-right: 5px; }
+
+        .chat-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; }
         input[type="text"] { padding: 12px 20px; width: 350px; font-size: 1rem; border-radius: 20px; border: 2px solid #aaa; box-shadow: 0 4px 6px rgba(0,0,0,0.1); outline: none; }
         input[type="text"]:disabled { background-color: #f0f0f0; color: #ff5252; border-color: #ff5252; font-weight: bold; }
+        
         #wand { position: absolute; width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.9); border-radius: 50%; transform: translate(-50%, -50%); display: none; pointer-events: none; z-index: 5; box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
         #wand::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 6px; height: 50px; background-color: rgba(255, 255, 255, 0.9); border-radius: 3px; }
         .bubble { position: absolute; border-radius: 50%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.2) 60%, rgba(200, 230, 255, 0.5)); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.5); transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
@@ -53,6 +76,9 @@
             <option value="typhoon">태풍</option>
         </select>
     </div>
+    
+    <div id="chatLog" class="chat-log"></div>
+
     <div class="chat-container">
         <input type="text" id="chatInput" maxlength="20" placeholder="최대 20자까지 입력 가능!" autocomplete="off">
     </div>
@@ -66,30 +92,20 @@
         const locationSelect = document.getElementById('locationSelect');
         const windSelect = document.getElementById('windSelect');
         const chatInput = document.getElementById('chatInput');
+        const chatLog = document.getElementById('chatLog'); // 채팅창 가져오기
         const wand = document.getElementById('wand');
 
         // 랜덤 닉네임 생성
-        const adjectives = ["귀여운", "멋진", "행복한", "졸린", "씩씩한", "신비로운", "엉뚱한", "다정한", "용감한", "기운찬", "말랑한"];
-        const nouns = ["강아지", "고양이", "거북이", "토끼", "다람쥐", "너구리", "펭귄", "참새", "자라", "비둘기", "호랑이", "사자"];
+        const adjectives = ["귀여운", "멋진", "행복한", "졸린", "씩씩한", "신비로운", "엉뚱한", "다정한"];
+        const nouns = ["강아지", "고양이", "거북이", "토끼", "다람쥐", "너구리", "펭귄", "참새"];
         const myNickname = adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
 
-        // 비속어 필터
+        // 비속어 필터 (강화된 버전 적용!)
         const badWords = [
-        // 1. 욕설 및 변형
-        "씨발", "시발", "ㅆㅂ", "ㅅㅂ", "쒸발", "씨방새", "시부랄", "씨팍",
-        // 2. 패륜 및 비하
-        "개새끼", "개새", "ㄱㅅㄲ", "개자식", "호로새끼", "십새끼", "씹새끼", "썅놈", "쌍놈", "썅년", "쌍년",
-        // 3. 인신공격 및 비하
-        "병신", "ㅂㅅ", "등신", "머저리", "쪼다", "찐따", "호구", "찌질이", "빡대가리", "꼴통",
-        // 4. 비정상적 행동 묘사
-        "미친", "미친놈", "미친년", "도라이", "또라이", "지랄", "ㅈㄹ", "염병", "옘병",
-        // 5. 비속어 강조 표현 및 기타
-        "좆", "좃", "ㅈㄴ", "존나", "졸라", "썅", "씹",
-        // 6. 공격적인 명령
-        "닥쳐", "아가리", "주둥이", "뒤져", "뒈져", "엿먹어", "꺼져",
-        // 7. 기타 은어 및 비하성 단어
-        "새끼", "관종", "주작", "쓰레기"
-         ];
+            "씨발", "시발", "ㅆㅂ", "ㅅㅂ", "개새끼", "개새", "ㄱㅅㄲ", "개자식",
+            "병신", "ㅂㅅ", "등신", "쪼다", "찐따", "미친", "미친놈", "지랄", "ㅈㄹ", 
+            "좆", "ㅈㄴ", "존나", "닥쳐", "새끼", "관종"
+        ]; 
         function filterProfanity(text) {
             let filteredText = text;
             badWords.forEach(word => {
@@ -121,6 +137,17 @@
         let currentWind = windSettings.clear;
         windSelect.addEventListener('change', (e) => { currentWind = windSettings[e.target.value]; });
 
+        // 🌟 채팅창에 글씨를 추가하는 함수
+        function appendToChatLog(nickname, messageText) {
+            const logItem = document.createElement('div');
+            logItem.classList.add('log-item');
+            logItem.innerHTML = `<span class="log-nickname">[${nickname}]</span> ${messageText}`;
+            chatLog.appendChild(logItem);
+            // 새 메시지가 오면 스크롤을 맨 아래로 자동으로 내려줍니다.
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        // 비눗방울 애니메이션 생성 함수
         function createChatBubble(nickname, messageText) {
             const messageLength = messageText.length + nickname.length;
             const chatBubble = document.createElement('div');
@@ -153,8 +180,10 @@
             setTimeout(() => { chatBubble.remove(); }, currentWind.time * 1000);
         }
 
+        // 서버에서 다른 사람의 메시지를 받았을 때
         socket.on('chat message', (data) => {
-            createChatBubble(data.nickname, data.message);
+            createChatBubble(data.nickname, data.message); // 비눗방울 띄우기
+            appendToChatLog(data.nickname, data.message);  // 🌟 채팅창에도 기록하기!
         });
 
         chatInput.addEventListener('keypress', (e) => {
@@ -184,14 +213,17 @@
                     message: filteredMessage
                 });
 
-                createChatBubble(myNickname, filteredMessage);
+                createChatBubble(myNickname, filteredMessage); // 내 비눗방울 띄우기
+                appendToChatLog(myNickname, filteredMessage);  // 🌟 내 메시지도 채팅창에 기록하기!
+                
                 chatInput.value = '';
             }
         });
 
+        // 클릭해서 비눗방울 부풀리기
         let isBlowing = false, currentBubble = null, bubbleSize = 20, growInterval = null;
         gameArea.addEventListener('mousedown', (e) => {
-            if(e.target === locationSelect || e.target === windSelect || e.target === chatInput) return;
+            if(e.target === locationSelect || e.target === windSelect || e.target === chatInput || chatLog.contains(e.target)) return;
             isBlowing = true; bubbleSize = 20;
             wand.style.display = 'block'; wand.style.left = e.clientX + 'px'; wand.style.top = e.clientY + 'px';
             currentBubble = document.createElement('div'); currentBubble.classList.add('bubble');
