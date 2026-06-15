@@ -128,3 +128,76 @@
             textSpan.classList.add('bubble-text');
             textSpan.innerText = messageText;
             chatBubble.appendChild(textSpan);
+
+            chatBubble.style.setProperty('--target-x', currentWind.x + 'px');
+            chatBubble.style.setProperty('--target-y', currentWind.y);
+            chatBubble.style.animation = `blowAway ${currentWind.time}s ease-in forwards`;
+
+            gameArea.appendChild(chatBubble);
+
+            setTimeout(() => { chatBubble.remove(); }, currentWind.time * 1000);
+        }
+
+        socket.on('chat message', (data) => {
+            createChatBubble(data.nickname, data.message);
+        });
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (isChatBanned) return; 
+
+            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
+                if (checkSpam()) {
+                    isChatBanned = true;
+                    chatInput.disabled = true; 
+                    chatInput.placeholder = "도배 방지! 20초간 채팅이 금지됩니다.";
+                    chatInput.value = '';
+                    setTimeout(() => {
+                        isChatBanned = false;
+                        chatInput.disabled = false;
+                        chatInput.placeholder = "최대 20자까지 입력 가능!";
+                        chatTimestamps = []; 
+                        chatInput.focus();
+                    }, 20000);
+                    return; 
+                }
+
+                const rawMessage = chatInput.value;
+                const filteredMessage = filterProfanity(rawMessage);
+                
+                socket.emit('chat message', {
+                    nickname: myNickname,
+                    message: filteredMessage
+                });
+
+                createChatBubble(myNickname, filteredMessage);
+                chatInput.value = '';
+            }
+        });
+
+        let isBlowing = false, currentBubble = null, bubbleSize = 20, growInterval = null;
+        gameArea.addEventListener('mousedown', (e) => {
+            if(e.target === locationSelect || e.target === windSelect || e.target === chatInput) return;
+            isBlowing = true; bubbleSize = 20;
+            wand.style.display = 'block'; wand.style.left = e.clientX + 'px'; wand.style.top = e.clientY + 'px';
+            currentBubble = document.createElement('div'); currentBubble.classList.add('bubble');
+            currentBubble.style.left = e.clientX + 'px'; currentBubble.style.top = e.clientY + 'px';
+            currentBubble.style.animation = 'none'; gameArea.appendChild(currentBubble);
+            growInterval = setInterval(() => {
+                if (bubbleSize < 300) { bubbleSize += 5; currentBubble.style.width = bubbleSize + 'px'; currentBubble.style.height = bubbleSize + 'px'; }
+            }, 30);
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (!isBlowing) return;
+            isBlowing = false; clearInterval(growInterval); wand.style.display = 'none';
+            if (currentBubble) {
+                currentBubble.style.setProperty('--target-x', currentWind.x + 'px');
+                currentBubble.style.setProperty('--target-y', currentWind.y);
+                currentBubble.style.animation = `blowAway ${currentWind.time}s ease-in forwards`;
+                const tempBubble = currentBubble;
+                setTimeout(() => { tempBubble.remove(); }, currentWind.time * 1000); currentBubble = null;
+            }
+        });
+    </script>
+</body>
+</html>
