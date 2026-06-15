@@ -1,0 +1,203 @@
+!DOCTYPE html
+html lang=ko
+head
+    meta charset=UTF-8
+    meta name=viewport content=width=device-width, initial-scale=1.0
+    title비눗방울 톡title
+    style
+        body, html { margin 0; padding 0; width 100%; height 100%; overflow hidden; font-family 'Malgun Gothic', sans-serif; transition background-color 0.5s ease; }
+        .bg-playground { background-color #fce4ec; }
+        .bg-rooftop { background-color #e8eaf6; }
+        .bg-school { background-color #e8f5e9; }
+        .bg-park { background-color #e0f7fa; }
+        .bg-night {
+            background-color #0b101e;
+            background-image radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px), radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
+            background-size 150px 150px, 200px 200px, 250px 250px; background-position 0 0, 40px 60px, 130px 200px; color white;
+        }
+        .ui-container { position absolute; top 20px; left 20px; z-index 10; display flex; gap 10px; }
+        select { padding 10px; font-size 1rem; border-radius 8px; border 2px solid #ccc; outline none; background rgba(255,255,255,0.8); }
+        .chat-container { position absolute; bottom 30px; left 50%; transform translateX(-50%); z-index 10; }
+        input[type=text] { padding 12px 20px; width 350px; font-size 1rem; border-radius 20px; border 2px solid #aaa; box-shadow 0 4px 6px rgba(0,0,0,0.1); outline none; }
+        input[type=text]disabled { background-color #f0f0f0; color #ff5252; border-color #ff5252; font-weight bold; }
+        #wand { position absolute; width 40px; height 40px; border 4px solid rgba(255, 255, 255, 0.9); border-radius 50%; transform translate(-50%, -50%); display none; pointer-events none; z-index 5; box-shadow 0 0 10px rgba(255, 255, 255, 0.5); }
+        #wandafter { content ''; position absolute; top 100%; left 50%; transform translateX(-50%); width 6px; height 50px; background-color rgba(255, 255, 255, 0.9); border-radius 3px; }
+        .bubble { position absolute; border-radius 50%; background radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.2) 60%, rgba(200, 230, 255, 0.5)); border 1px solid rgba(255, 255, 255, 0.6); box-shadow 0 0 10px rgba(255, 255, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.5); transform translate(-50%, -50%); display flex; flex-direction column; align-items center; justify-content center; pointer-events none; }
+        .bubble-nickname { font-size 0.75rem; color #555; margin-bottom 4px; font-weight bold; text-shadow 0 0 3px white; }
+        .bubble-text { color #111; font-size 0.95rem; font-weight bold; text-align center; padding 0 10px; word-break break-all; text-shadow 0 0 5px rgba(255,255,255,0.8); }
+        
+        @keyframes blowAway {
+            0% { transform translate(-50%, -50%) scale(1); opacity 1; }
+            85% { transform translate(calc(-50% + var(--target-x)  0.85), calc(var(--target-y)  0.85)) scale(1.1); opacity 0.9; }
+            95% { transform translate(calc(-50% + var(--target-x)), var(--target-y)) scale(1.1); opacity 0.8; }
+            98% { transform translate(calc(-50% + var(--target-x)), var(--target-y)) scale(1.5); opacity 0; box-shadow none; }
+            100% { transform translate(calc(-50% + var(--target-x)), var(--target-y)) scale(1.5); opacity 0; }
+        }
+    style
+head
+body class=bg-playground id=gameArea
+
+    div id=wanddiv
+    div class=ui-container
+        select id=locationSelect
+            option value=bg-playground놀이터option
+            option value=bg-rooftop아파트 옥상option
+            option value=bg-school학교 운동장option
+            option value=bg-park공원option
+            option value=bg-night새벽 산책길option
+        select
+        select id=windSelect
+            option value=clear맑은 날option
+            option value=breeze산들바람option
+            option value=cool시원한 바람option
+            option value=typhoon태풍option
+        select
+    div
+    div class=chat-container
+        input type=text id=chatInput maxlength=20 placeholder=최대 20자까지 입력 가능! autocomplete=off
+    div
+
+    script src=socket.iosocket.io.jsscript
+    
+    script
+        const socket = io();
+
+        const gameArea = document.getElementById('gameArea');
+        const locationSelect = document.getElementById('locationSelect');
+        const windSelect = document.getElementById('windSelect');
+        const chatInput = document.getElementById('chatInput');
+        const wand = document.getElementById('wand');
+
+         랜덤 닉네임 생성
+        const adjectives = [귀여운, 멋진, 행복한, 졸린, 씩씩한, 신비로운, 엉뚱한, 다정한];
+        const nouns = [강아지, 고양이, 거북이, 토끼, 다람쥐, 너구리, 펭귄, 참새];
+        const myNickname = adjectives[Math.floor(Math.random()  adjectives.length)] +   + nouns[Math.floor(Math.random()  nouns.length)];
+
+         비속어 필터
+        const badWords = [바보, 멍청이, 짜증, 씨발]; 
+        function filterProfanity(text) {
+            let filteredText = text;
+            badWords.forEach(word = {
+                const replacement = 🫧.repeat(word.length);
+                filteredText = filteredText.replace(new RegExp(word, g), replacement);
+            });
+            return filteredText;
+        }
+
+         도배 방지 변수
+        let chatTimestamps = [];
+        let isChatBanned = false;
+
+        function checkSpam() {
+            const now = Date.now();
+            chatTimestamps.push(now);
+            if (chatTimestamps.length  7) chatTimestamps.shift(); 
+            if (chatTimestamps.length === 7 && (now - chatTimestamps[0]  10000)) return true;
+            return false;
+        }
+
+        locationSelect.addEventListener('change', (e) = { gameArea.className = e.target.value; });
+        const windSettings = {
+            clear   { x 0,   y '-350px', time 5.0 },    
+            breeze  { x 80,  y '-300px', time 4.0 },    
+            cool    { x 150, y '-400px', time 1.8 },  
+            typhoon { x 500, y '-500px', time 0.6 }   
+        };
+        let currentWind = windSettings.clear;
+        windSelect.addEventListener('change', (e) = { currentWind = windSettings[e.target.value]; });
+
+        function createChatBubble(nickname, messageText) {
+            const messageLength = messageText.length + nickname.length;
+            const chatBubble = document.createElement('div');
+            chatBubble.classList.add('bubble');
+            
+            const randomX = Math.floor(Math.random()  80) + 10;
+            chatBubble.style.left = randomX + '%';
+            chatBubble.style.top = '85%'; 
+            
+            const calculatedSize = 80 + (messageLength  6); 
+            chatBubble.style.width = calculatedSize + 'px';
+            chatBubble.style.height = calculatedSize + 'px';
+
+            const nicknameSpan = document.createElement('span');
+            nicknameSpan.classList.add('bubble-nickname');
+            nicknameSpan.innerText = `[${nickname}]`;
+            chatBubble.appendChild(nicknameSpan);
+
+            const textSpan = document.createElement('span');
+            textSpan.classList.add('bubble-text');
+            textSpan.innerText = messageText;
+            chatBubble.appendChild(textSpan);
+
+            chatBubble.style.setProperty('--target-x', currentWind.x + 'px');
+            chatBubble.style.setProperty('--target-y', currentWind.y);
+            chatBubble.style.animation = `blowAway ${currentWind.time}s ease-in forwards`;
+
+            gameArea.appendChild(chatBubble);
+
+            setTimeout(() = { chatBubble.remove(); }, currentWind.time  1000);
+        }
+
+        socket.on('chat message', (data) = {
+            createChatBubble(data.nickname, data.message);
+        });
+
+        chatInput.addEventListener('keypress', (e) = {
+            if (isChatBanned) return; 
+
+            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
+                if (checkSpam()) {
+                    isChatBanned = true;
+                    chatInput.disabled = true; 
+                    chatInput.placeholder = 도배 방지! 20초간 채팅이 금지됩니다.;
+                    chatInput.value = '';
+                    setTimeout(() = {
+                        isChatBanned = false;
+                        chatInput.disabled = false;
+                        chatInput.placeholder = 최대 20자까지 입력 가능!;
+                        chatTimestamps = []; 
+                        chatInput.focus();
+                    }, 20000);
+                    return; 
+                }
+
+                const rawMessage = chatInput.value;
+                const filteredMessage = filterProfanity(rawMessage);
+                
+                socket.emit('chat message', {
+                    nickname myNickname,
+                    message filteredMessage
+                });
+
+                createChatBubble(myNickname, filteredMessage);
+                chatInput.value = '';
+            }
+        });
+
+        let isBlowing = false, currentBubble = null, bubbleSize = 20, growInterval = null;
+        gameArea.addEventListener('mousedown', (e) = {
+            if(e.target === locationSelect  e.target === windSelect  e.target === chatInput) return;
+            isBlowing = true; bubbleSize = 20;
+            wand.style.display = 'block'; wand.style.left = e.clientX + 'px'; wand.style.top = e.clientY + 'px';
+            currentBubble = document.createElement('div'); currentBubble.classList.add('bubble');
+            currentBubble.style.left = e.clientX + 'px'; currentBubble.style.top = e.clientY + 'px';
+            currentBubble.style.animation = 'none'; gameArea.appendChild(currentBubble);
+            growInterval = setInterval(() = {
+                if (bubbleSize  300) { bubbleSize += 5; currentBubble.style.width = bubbleSize + 'px'; currentBubble.style.height = bubbleSize + 'px'; }
+            }, 30);
+        });
+
+        window.addEventListener('mouseup', () = {
+            if (!isBlowing) return;
+            isBlowing = false; clearInterval(growInterval); wand.style.display = 'none';
+            if (currentBubble) {
+                currentBubble.style.setProperty('--target-x', currentWind.x + 'px');
+                currentBubble.style.setProperty('--target-y', currentWind.y);
+                currentBubble.style.animation = `blowAway ${currentWind.time}s ease-in forwards`;
+                const tempBubble = currentBubble;
+                setTimeout(() = { tempBubble.remove(); }, currentWind.time  1000); currentBubble = null;
+            }
+        });
+    script
+body
+html
