@@ -38,29 +38,30 @@
             background: #fff; box-shadow: 4px 4px 0px #000; cursor: pointer;
         }
         
-        /* 🌟 줄바꿈 및 중앙 정렬이 적용된 안내 문구 */
+        /* 🌟 안내 문구: 왼쪽 정렬 적용 */
         .instruction-text {
             font-size: 0.85rem; color: #000; background: #fff; border: 2px solid #000; 
             padding: 6px 10px; width: max-content; box-shadow: 2px 2px 0px #000; margin-top: 5px;
-            text-align: center; line-height: 1.4;
+            text-align: left; line-height: 1.4;
         }
 
-        /* 🌟 더 투명해지고 크기가 줄어든 미니멀 채팅창 */
+        /* 🌟 채팅창: 가로 폭 기준(box-sizing)을 입력창과 완벽 통일 */
         .chat-log { 
+            box-sizing: border-box;
             position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); 
             width: 90%; max-width: 350px; 
-            height: 105px; /* 약 5줄이 들어가도록 높이 축소 */
-            background: rgba(255, 255, 255, 0.4); /* 0.8에서 0.4로 변경하여 투명도 증가 */
+            height: 105px; 
+            background: rgba(255, 255, 255, 0.4); 
             border: 3px solid #000; border-radius: 0; box-shadow: 5px 5px 0px rgba(0,0,0,0.3);
             padding: 8px 10px; overflow-y: auto; z-index: 5; 
             display: flex; flex-direction: column; gap: 5px; 
         }
         
-        /* 🌟 채팅 글씨 크기 축소 */
         .log-item { font-size: 0.8rem; color: #000; word-break: break-all; text-shadow: none; }
-        .log-nickname { font-weight: normal; color: #000; background: #ffeb3b; border: 1px solid #000; padding: 0 4px; margin-right: 5px; }
         
-        /* 알림 메시지도 크기 축소 및 투명도 조절 */
+        /* 🌟 닉네임 배경색 하얀색(solid)으로 통일 */
+        .log-nickname { font-weight: normal; color: #000; background: #ffffff; border: 1px solid #000; padding: 0 4px; margin-right: 5px; }
+        
         .log-notice { color: #555; font-size: 0.75rem; background: rgba(238, 238, 238, 0.7); border: 1px dashed #aaa; padding: 3px; }
         .notice-icon { font-style: normal; }
         .notice-text { font-style: italic; }
@@ -71,12 +72,27 @@
             padding: 5px 15px; font-size: 1rem; z-index: 30; pointer-events: none; width: max-content; text-align: center;
         }
 
-        .chat-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 350px; z-index: 10; }
+        /* 🌟 입력창 + 버튼: 가로 폭 완벽 매칭 및 버튼 추가 */
+        .chat-container { 
+            box-sizing: border-box;
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); 
+            width: 90%; max-width: 350px; z-index: 10; 
+            display: flex; gap: 5px;
+        }
         input[type="text"] { 
-            box-sizing: border-box; padding: 12px 15px; width: 100%; font-size: 1rem; font-family: 'DungGeunMo', sans-serif;
-            border: 3px solid #000; border-radius: 0; box-shadow: 5px 5px 0px #000; outline: none; 
+            flex: 1; /* 남은 공간을 꽉 채움 */
+            box-sizing: border-box; padding: 12px 15px; font-size: 1rem; font-family: 'DungGeunMo', sans-serif;
+            border: 3px solid #000; border-radius: 0; box-shadow: 4px 4px 0px #000; outline: none; 
         }
         input[type="text"]:disabled { background-color: #ddd; color: #f00; border-color: #f00; }
+        
+        /* 🌟 후~💨 전송 버튼 디자인 */
+        #sendBtn {
+            font-family: 'DungGeunMo', sans-serif; font-size: 1rem; font-weight: bold;
+            background: #ffffff; border: 3px solid #000; box-shadow: 4px 4px 0px #000; 
+            padding: 0 10px; cursor: pointer; outline: none;
+        }
+        #sendBtn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #000; }
         
         #wand { 
             position: absolute; width: 40px; height: 40px; 
@@ -89,26 +105,42 @@
             width: 6px; height: 40px; background-color: #63B8FF; border: none; 
         }
         
+        /* 🌟 엔더 진주 느낌의 비트맵 원형 비눗방울 */
         .bubble { 
-            position: absolute; border-radius: 50%; background-color: rgba(135, 206, 235, 0.4); 
+            position: absolute; 
+            background-color: rgba(135, 206, 235, 0.4); 
+            
+            /* 마인크래프트 광택 텍스쳐 */
             background-image: 
-                linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)),
-                linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)),
-                linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7));
+                linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)),
+                linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)),
+                linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8));
             background-size: 15% 15%, 15% 15%, 15% 15%; 
             background-position: 15% 15%, 30% 15%, 15% 30%; background-repeat: no-repeat;
-            border: 3px solid rgba(100, 180, 230, 0.8); box-shadow: inset -6px -6px 0px rgba(100, 180, 230, 0.5); 
+            
+            /* 검은 선 제거, 내부 픽셀 3D 음영 처리 */
+            box-shadow: inset 0 0 0 4px rgba(100, 180, 230, 0.8), inset -6px -6px 0px rgba(100, 180, 230, 0.5); 
+            
+            /* 🌟 핵심! 픽셀 느낌으로 팔각형 모양으로 모서리 잘라내기 (Ender Pearl 스타일) */
+            clip-path: polygon(
+                20% 0%, 80% 0%, 
+                100% 20%, 100% 80%, 
+                80% 100%, 20% 100%, 
+                0% 80%, 0% 20%
+            );
+            
             transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; 
         }
         
-        .bubble-nickname { font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffeb3b; padding: 0 4px; border: 1px solid rgba(100, 180, 230, 0.8); }
+        /* 🌟 비눗방울 안의 닉네임 배경색도 하얀색 */
+        .bubble-nickname { font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffffff; padding: 0 4px; border: 1px solid rgba(100, 180, 230, 0.8); }
         .bubble-text { color: #000; font-size: 1rem; text-align: center; padding: 0 10px; word-break: break-all; text-shadow: 1px 1px 0px #fff; }
         
         @keyframes blowAway {
             0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            85% { transform: translate(calc(-50% + var(--target-x) * 0.85), calc(var(--target-y) * 0.85)) scale(1.1); opacity: 1; }
-            95% { transform: translate(calc(-50% + var(--target-x)), var(--target-y)) scale(1.1); opacity: 0.5; }
-            100% { transform: translate(calc(-50% + var(--target-x)), var(--target-y)) scale(1.5); opacity: 0; }
+            85% { transform: translate(calc(-50% + var(--target-x) * 0.85), calc(-50% + var(--target-y) * 0.85)) scale(1.1); opacity: 1; }
+            95% { transform: translate(calc(-50% + var(--target-x)), calc(-50% + var(--target-y))) scale(1.1); opacity: 0.5; }
+            100% { transform: translate(calc(-50% + var(--target-x)), calc(-50% + var(--target-y))) scale(1.5); opacity: 0; }
         }
 
         @keyframes fadeOutAlert {
@@ -143,6 +175,7 @@
 
     <div class="chat-container">
         <input type="text" id="chatInput" maxlength="20" placeholder="최대 20자 입력가능!" autocomplete="off">
+        <button id="sendBtn">후~💨</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -154,6 +187,7 @@
         const locationSelect = document.getElementById('locationSelect');
         const windSelect = document.getElementById('windSelect');
         const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
         const chatLog = document.getElementById('chatLog');
         const wand = document.getElementById('wand');
 
@@ -243,25 +277,10 @@
             const chatBubble = document.createElement('div');
             chatBubble.classList.add('bubble');
             
-            // 🌟 생성 위치 제한 로직: 중앙의 채팅창을 피해서 왼쪽, 오른쪽, 위쪽으로만 생성
-            const zone = Math.floor(Math.random() * 3);
-            let startX, startY;
-            if (zone === 0) {
-                // 구역 1: 화면의 왼쪽 아래
-                startX = Math.random() * 15 + 5;  // 5% ~ 20%
-                startY = Math.random() * 10 + 75; // 75% ~ 85%
-            } else if (zone === 1) {
-                // 구역 2: 화면의 오른쪽 아래
-                startX = Math.random() * 15 + 80; // 80% ~ 95%
-                startY = Math.random() * 10 + 75; // 75% ~ 85%
-            } else {
-                // 구역 3: 채팅창보다 한참 위쪽
-                startX = Math.random() * 80 + 10; // 10% ~ 90%
-                startY = Math.random() * 20 + 45; // 45% ~ 65%
-            }
-            
-            chatBubble.style.left = startX + '%';
-            chatBubble.style.top = startY + '%'; 
+            // 🌟 생성 위치: 채팅창 '바로 위쪽' 에서 스폰
+            chatBubble.style.left = (Math.random() * 80 + 10) + '%';
+            chatBubble.style.bottom = '210px'; // 채팅창 바로 위쪽 픽셀!
+            chatBubble.style.top = 'auto'; // 확실히 bottom 기준으로 올라가게 세팅
             
             const calculatedSize = 80 + (messageLength * 6); 
             chatBubble.style.width = calculatedSize + 'px';
@@ -279,59 +298,75 @@
 
             chatBubble.style.setProperty('--target-x', currentWind.x + 'px');
             chatBubble.style.setProperty('--target-y', currentWind.y);
-            chatBubble.style.animation = `blowAway ${currentWind.time}s linear forwards`; 
+            
+            // 🌟 수명 연장: 위쪽에서 시작하므로 애니메이션 시간을 1.5배 늘려 더 천천히 날아가게!
+            const longerTime = currentWind.time * 1.5;
+            chatBubble.style.animation = `blowAway ${longerTime}s linear forwards`; 
 
             gameArea.appendChild(chatBubble);
 
-            setTimeout(() => { chatBubble.remove(); }, currentWind.time * 1000);
+            setTimeout(() => { chatBubble.remove(); }, longerTime * 1000);
         }
+
+        // 🌟 전송 기능을 묶어둔 전용 함수 (엔터, 버튼 클릭 모두 대응)
+        function sendMessage() {
+            if (isChatBanned || chatInput.value.trim() === '') return; 
+
+            if (checkSpam()) {
+                isChatBanned = true;
+                chatInput.disabled = true; 
+                sendBtn.disabled = true;
+                chatInput.placeholder = "도배 금지! 20초 쿨타임.";
+                chatInput.value = '';
+                setTimeout(() => {
+                    isChatBanned = false;
+                    chatInput.disabled = false;
+                    sendBtn.disabled = false;
+                    chatInput.placeholder = "최대 20자 입력가능!";
+                    chatTimestamps = []; 
+                    chatInput.focus();
+                }, 20000);
+                return; 
+            }
+
+            const rawMessage = chatInput.value;
+            const filteredMessage = filterProfanity(rawMessage);
+            
+            socket.emit('chat message', {
+                nickname: myNickname,
+                message: filteredMessage
+            });
+
+            createChatBubble(myNickname, filteredMessage);
+            appendToChatLog(myNickname, filteredMessage);
+            
+            chatInput.value = '';
+            chatInput.focus();
+        }
+
+        // 🌟 엔터키 처리
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // 🌟 버튼 클릭 처리
+        sendBtn.addEventListener('click', sendMessage);
 
         socket.on('chat message', (data) => {
             createChatBubble(data.nickname, data.message);
             appendToChatLog(data.nickname, data.message);
         });
 
-        chatInput.addEventListener('keypress', (e) => {
-            if (isChatBanned) return; 
-
-            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
-                if (checkSpam()) {
-                    isChatBanned = true;
-                    chatInput.disabled = true; 
-                    chatInput.placeholder = "도배 금지! 20초 쿨타임.";
-                    chatInput.value = '';
-                    setTimeout(() => {
-                        isChatBanned = false;
-                        chatInput.disabled = false;
-                        chatInput.placeholder = "최대 20자 입력가능!";
-                        chatTimestamps = []; 
-                        chatInput.focus();
-                    }, 20000);
-                    return; 
-                }
-
-                const rawMessage = chatInput.value;
-                const filteredMessage = filterProfanity(rawMessage);
-                
-                socket.emit('chat message', {
-                    nickname: myNickname,
-                    message: filteredMessage
-                });
-
-                createChatBubble(myNickname, filteredMessage);
-                appendToChatLog(myNickname, filteredMessage);
-                
-                chatInput.value = '';
-            }
-        });
-
         let isBlowing = false, currentBubble = null, bubbleSize = 20, growInterval = null;
         gameArea.addEventListener('mousedown', (e) => {
-            if(e.target === locationSelect || e.target === windSelect || e.target === chatInput || chatLog.contains(e.target)) return;
+            // UI를 누를 때는 비눗방울 스폰 방지
+            if(e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target)) return;
+            
             isBlowing = true; bubbleSize = 20;
             wand.style.display = 'block'; wand.style.left = e.clientX + 'px'; wand.style.top = e.clientY + 'px';
             currentBubble = document.createElement('div'); currentBubble.classList.add('bubble');
             currentBubble.style.left = e.clientX + 'px'; currentBubble.style.top = e.clientY + 'px';
+            currentBubble.style.bottom = 'auto'; // 마우스 클릭시엔 top 기준으로 생성
             currentBubble.style.animation = 'none'; gameArea.appendChild(currentBubble);
             
             growInterval = setInterval(() => {
@@ -345,14 +380,15 @@
             if (currentBubble) {
                 currentBubble.style.setProperty('--target-x', currentWind.x + 'px');
                 currentBubble.style.setProperty('--target-y', currentWind.y);
-                currentBubble.style.animation = `blowAway ${currentWind.time}s linear forwards`;
+                const longerTime = currentWind.time * 1.5;
+                currentBubble.style.animation = `blowAway ${longerTime}s linear forwards`;
                 const tempBubble = currentBubble;
-                setTimeout(() => { tempBubble.remove(); }, currentWind.time * 1000); currentBubble = null;
+                setTimeout(() => { tempBubble.remove(); }, longerTime * 1000); currentBubble = null;
             }
         });
         
         gameArea.addEventListener('touchstart', (e) => {
-            if(e.target === locationSelect || e.target === windSelect || e.target === chatInput || chatLog.contains(e.target)) return;
+            if(e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target)) return;
             const touch = e.touches[0];
             const mouseEvent = new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY });
             gameArea.dispatchEvent(mouseEvent);
