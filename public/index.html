@@ -3,87 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>비눗방울 톡</title>
+    <title>픽셀 비눗방울 톡</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Malgun Gothic', sans-serif; transition: background-color 0.5s ease; }
+        /* 🌟 1. 레트로 픽셀 폰트 (둥근모꼴) 불러오기 */
+        @font-face {
+            font-family: 'DungGeunMo';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'DungGeunMo', sans-serif; transition: background-color 0s; /* 비트맵 느낌을 위해 부드러운 전환 제거 */ }
+        
         .bg-playground { background-color: #fce4ec; }
         .bg-rooftop { background-color: #e8eaf6; }
         .bg-school { background-color: #e8f5e9; }
         .bg-park { background-color: #e0f7fa; }
         .bg-night {
             background-color: #0b101e;
-            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px), radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
-            background-size: 150px 150px, 200px 200px, 250px 250px; background-position: 0 0, 40px 60px, 130px 200px; color: white;
+            background-image: 
+                linear-gradient(white 2px, transparent 2px),
+                linear-gradient(90deg, white 2px, transparent 2px),
+                linear-gradient(rgba(255,255,255,0.5) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(255,255,255,0.5) 2px, transparent 2px);
+            background-size: 150px 150px, 150px 150px, 80px 80px, 80px 80px;
+            background-position: 10px 10px, 10px 10px, 40px 40px, 40px 40px;
+            color: white;
         }
-        .ui-container { position: absolute; top: 20px; left: 20px; z-index: 10; display: flex; gap: 10px; flex-wrap: wrap; }
-        select { padding: 8px; font-size: 0.9rem; border-radius: 8px; border: 2px solid #ccc; outline: none; background: rgba(255,255,255,0.8); }
+
+        /* 🌟 2. 픽셀 UI 스타일 (두꺼운 테두리, 각진 모서리, 단색 그림자) */
+        .ui-container { position: absolute; top: 20px; left: 20px; z-index: 10; display: flex; flex-direction: column; gap: 8px; }
+        .select-group { display: flex; gap: 10px; }
+        select { 
+            padding: 8px; font-size: 1rem; font-family: 'DungGeunMo', sans-serif;
+            border: 3px solid #000; border-radius: 0; outline: none; 
+            background: #fff; box-shadow: 4px 4px 0px #000; cursor: pointer;
+        }
         
-        /* 🌟 1. 중앙 하단으로 이동한 미니멀 채팅 기록창 (모바일 최적화) */
+        /* 🌟 조작법 안내 문구 */
+        .instruction-text {
+            font-size: 0.85rem; color: #000; background: #fff; border: 2px solid #000; 
+            padding: 5px 8px; width: max-content; box-shadow: 2px 2px 0px #000; margin-top: 5px;
+        }
+
+        /* 중앙 하단 미니멀 채팅창 (픽셀 버전) */
         .chat-log { 
-            position: absolute; 
-            bottom: 75px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: 90%; 
-            max-width: 350px; /* 화면이 커도 350px 넘지 않게 */
-            height: 150px; /* 높이를 줄여서 미니멀하게 */
-            background: rgba(255, 255, 255, 0.4); 
-            backdrop-filter: blur(4px); 
-            border-radius: 12px; 
-            padding: 10px 15px; 
-            overflow-y: auto; 
-            z-index: 5; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 6px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+            position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); 
+            width: 90%; max-width: 350px; height: 130px; 
+            background: rgba(255, 255, 255, 0.8); 
+            border: 3px solid #000; border-radius: 0; box-shadow: 5px 5px 0px rgba(0,0,0,0.3);
+            padding: 10px; overflow-y: auto; z-index: 5; 
+            display: flex; flex-direction: column; gap: 6px; 
         }
-        .log-item { font-size: 0.85rem; color: #222; word-break: break-all; } /* 폰트 크기 축소 */
-        .log-nickname { font-weight: bold; color: #555; margin-right: 5px; }
+        .log-item { font-size: 0.9rem; color: #000; word-break: break-all; text-shadow: none; }
+        .log-nickname { font-weight: normal; color: #000; background: #ffeb3b; border: 1px solid #000; padding: 0 4px; margin-right: 5px; }
         
-        /* 🌟 알림 메시지 폰트 및 스타일 분리 */
-        .log-notice { color: #888888; font-size: 0.8rem; }
-        .notice-icon { font-style: normal; } /* 이모지는 무조건 일반체! */
-        .notice-text { font-style: italic; } /* 글씨 부분만 기울임체! */
+        /* 알림 메시지 디자인 */
+        .log-notice { color: #555; font-size: 0.85rem; background: #eee; border: 1px dashed #aaa; padding: 3px; }
+        .notice-icon { font-style: normal; }
+        .notice-text { font-style: italic; }
 
-        /* 🌟 최상단 중앙 알림 메시지 스타일 */
+        /* 최상단 중앙 알림 메시지 배너 */
         .notice-banner {
-            position: absolute;
-            top: 70px; /* 모바일에서 드롭다운 메뉴와 겹치지 않게 살짝 내림 */
-            left: 50%;
-            transform: translateX(-50%);
-            color: #777777;
-            font-size: 1rem;
-            font-weight: bold;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.9);
-            z-index: 30;
-            pointer-events: none;
-            width: 90%;
-            text-align: center;
+            position: absolute; top: 150px; left: 50%; transform: translateX(-50%);
+            color: #fff; background: #000; border: 3px solid #fff; box-shadow: 4px 4px 0px #000;
+            padding: 5px 15px; font-size: 1rem; z-index: 30; pointer-events: none; width: max-content; text-align: center;
         }
 
-        /* 🌟 모바일에서도 안 삐져나가게 수정된 입력창 */
+        /* 입력창 픽셀 디자인 */
         .chat-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 350px; z-index: 10; }
-        input[type="text"] { box-sizing: border-box; padding: 10px 15px; width: 100%; font-size: 0.9rem; border-radius: 20px; border: 2px solid #aaa; box-shadow: 0 4px 6px rgba(0,0,0,0.1); outline: none; }
-        input[type="text"]:disabled { background-color: #f0f0f0; color: #ff5252; border-color: #ff5252; font-weight: bold; }
+        input[type="text"] { 
+            box-sizing: border-box; padding: 12px 15px; width: 100%; font-size: 1rem; font-family: 'DungGeunMo', sans-serif;
+            border: 3px solid #000; border-radius: 0; box-shadow: 5px 5px 0px #000; outline: none; 
+        }
+        input[type="text"]:disabled { background-color: #ddd; color: #f00; border-color: #f00; }
         
-        #wand { position: absolute; width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.9); border-radius: 50%; transform: translate(-50%, -50%); display: none; pointer-events: none; z-index: 5; box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
-        #wand::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 6px; height: 50px; background-color: rgba(255, 255, 255, 0.9); border-radius: 3px; }
-        .bubble { position: absolute; border-radius: 50%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.2) 60%, rgba(200, 230, 255, 0.5)); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.5); transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        .bubble-nickname { font-size: 0.75rem; color: #555; margin-bottom: 4px; font-weight: bold; text-shadow: 0 0 3px white; }
-        .bubble-text { color: #111; font-size: 0.95rem; font-weight: bold; text-align: center; padding: 0 10px; word-break: break-all; text-shadow: 0 0 5px rgba(255,255,255,0.8); }
+        /* 🌟 3. 비눗방울 디자인을 네모난 픽셀 블록으로 변경 */
+        #wand { position: absolute; width: 40px; height: 40px; border: 4px solid #fff; border-radius: 0; background: rgba(0,0,0,0.2); transform: translate(-50%, -50%); display: none; pointer-events: none; z-index: 5; box-shadow: 4px 4px 0px #000; }
+        #wand::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 8px; height: 50px; background-color: #fff; border: 2px solid #000; }
+        
+        .bubble { 
+            position: absolute; 
+            border-radius: 0; /* 둥근 모서리 제거! 완전한 사각형 */
+            background: #e0f7fa; /* 단색 배경 */
+            border: 3px solid #000; /* 뚜렷한 검은 테두리 */
+            box-shadow: inset 4px 4px 0px rgba(255,255,255,0.8), 4px 4px 0px rgba(0,0,0,0.2); /* 픽셀 반사광과 그림자 효과 */
+            transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; 
+        }
+        .bubble-nickname { font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffeb3b; padding: 0 4px; border: 1px solid #000; }
+        .bubble-text { color: #000; font-size: 1rem; text-align: center; padding: 0 10px; word-break: break-all; text-shadow: 1px 1px 0px #fff; }
         
         @keyframes blowAway {
             0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            85% { transform: translate(calc(-50% + var(--target-x) * 0.85), calc(var(--target-y) * 0.85)) scale(1.1); opacity: 0.9; }
-            95% { transform: translate(calc(-50% + var(--target-x)), var(--target-y)) scale(1.1); opacity: 0.8; }
-            98% { transform: translate(calc(-50% + var(--target-x)), var(--target-y)) scale(1.5); opacity: 0; box-shadow: none; }
+            85% { transform: translate(calc(-50% + var(--target-x) * 0.85), calc(var(--target-y) * 0.85)) scale(1.1); opacity: 1; }
+            95% { transform: translate(calc(-50% + var(--target-x)), var(--target-y)) scale(1.1); opacity: 0.5; }
             100% { transform: translate(calc(-50% + var(--target-x)), var(--target-y)) scale(1.5); opacity: 0; }
         }
 
         @keyframes fadeOutAlert {
             0% { opacity: 1; transform: translate(-50%, 0); }
-            100% { opacity: 0; transform: translate(-50%, -20px); }
+            100% { opacity: 0; transform: translate(-50%, -30px); }
         }
     </style>
 </head>
@@ -91,25 +110,28 @@
 
     <div id="wand"></div>
     <div class="ui-container">
-        <select id="locationSelect">
-            <option value="bg-playground">놀이터</option>
-            <option value="bg-rooftop">아파트 옥상</option>
-            <option value="bg-school">학교 운동장</option>
-            <option value="bg-park">공원</option>
-            <option value="bg-night">새벽 산책길</option>
-        </select>
-        <select id="windSelect">
-            <option value="clear">맑은 날</option>
-            <option value="breeze">산들바람</option>
-            <option value="cool">시원한 바람</option>
-            <option value="typhoon">태풍</option>
-        </select>
+        <div class="select-group">
+            <select id="locationSelect">
+                <option value="bg-playground">놀이터</option>
+                <option value="bg-rooftop">옥상</option>
+                <option value="bg-school">학교</option>
+                <option value="bg-park">공원</option>
+                <option value="bg-night">밤거리</option>
+            </select>
+            <select id="windSelect">
+                <option value="clear">맑음</option>
+                <option value="breeze">산들바람</option>
+                <option value="cool">시원함</option>
+                <option value="typhoon">태풍</option>
+            </select>
+        </div>
+        <div class="instruction-text">마우스를 꾹 누르면 비눗방울만 불어볼 수 있어요!</div>
     </div>
     
     <div id="chatLog" class="chat-log"></div>
 
     <div class="chat-container">
-        <input type="text" id="chatInput" maxlength="20" placeholder="최대 20자까지 입력 가능!" autocomplete="off">
+        <input type="text" id="chatInput" maxlength="20" placeholder="최대 20자 입력!" autocomplete="off">
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -124,24 +146,59 @@
         const chatLog = document.getElementById('chatLog');
         const wand = document.getElementById('wand');
 
-        // 랜덤 닉네임 생성
-        const adjectives = ["귀여운", "멋진", "행복한", "졸린", "씩씩한", "신비로운", "엉뚱한", "다정한"];
+        const adjectives = ["귀여운", "멋진", "행복한", "졸린", "씩씩한", "신비한", "엉뚱한", "다정한"];
         const nouns = ["강아지", "고양이", "거북이", "토끼", "다람쥐", "너구리", "펭귄", "참새"];
         const myNickname = adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
 
-        // 접속하자마자 서버에 내 닉네임을 알려주기
-        socket.emit('user connect notification', myNickname);
+        // 🌟 1. '이/가' (입장용) 구별 함수
+        function getParticleI_Ga(name) {
+            const lastChar = name.charCodeAt(name.length - 1);
+            if (lastChar < 0xAC00 || lastChar > 0xD7A3) return "가";
+            return (lastChar - 0xAC00) % 28 > 0 ? "이" : "가";
+        }
 
-        // 비속어 필터
-        const badWords = [
-            "씨발", "시발", "ㅆㅂ", "ㅅㅂ", "개새끼", "개새", "ㄱㅅㄲ", "개자식",
-            "병신", "ㅂㅅ", "등신", "쪼다", "찐따", "미친", "미친놈", "지랄", "ㅈㄹ", 
-            "좆", "ㅈㄴ", "존나", "닥쳐", "새끼", "관종"
-        ]; 
+        // 🌟 2. '은/는' (퇴장용) 구별 함수
+        function getParticleEun_Neun(name) {
+            const lastChar = name.charCodeAt(name.length - 1);
+            if (lastChar < 0xAC00 || lastChar > 0xD7A3) return "는";
+            return (lastChar - 0xAC00) % 28 > 0 ? "은" : "는";
+        }
+
+        // 🌟 통합 알림 함수 (이모지 일반체, 텍스트 기울임체 분리)
+        function showNotice(text) {
+            const banner = document.createElement('div');
+            banner.classList.add('notice-banner');
+            banner.innerHTML = `<span class="notice-icon">📢🫧</span> <span class="notice-text">${text}</span>`;
+            banner.style.animation = `fadeOutAlert ${currentWind.time}s ease-in forwards`;
+            gameArea.appendChild(banner);
+            setTimeout(() => { banner.remove(); }, currentWind.time * 1000);
+
+            const logItem = document.createElement('div');
+            logItem.classList.add('log-item', 'log-notice');
+            logItem.innerHTML = `<span class="notice-icon">📢🫧</span> <span class="notice-text">${text}</span>`;
+            chatLog.appendChild(logItem);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        // 접속 알림 서버 전송 및 '나'의 화면에 알림 표시!
+        socket.emit('user connect notification', myNickname);
+        showNotice(`나(${myNickname})도 비눗방울 불어야지~`);
+
+        // 다른 사람이 입장했을 때 알림
+        socket.on('user joined', (nickname) => {
+            showNotice(`${nickname}${getParticleI_Ga(nickname)} 비눗방울을 불러 왔어요!`);
+        });
+
+        // 🌟 다른 사람이 퇴장했을 때 알림 ('은/는' 사용)
+        socket.on('user left', (nickname) => {
+            showNotice(`${nickname}${getParticleEun_Neun(nickname)} 이제 집에 간대요.`);
+        });
+
+        const badWords = ["씨발", "시발", "ㅆㅂ", "ㅅㅂ", "개새끼", "개새", "ㄱㅅㄲ", "개자식", "병신", "ㅂㅅ", "등신", "쪼다", "찐따", "미친", "지랄", "ㅈㄹ", "좆", "ㅈㄴ", "존나", "닥쳐", "새끼", "관종"]; 
         function filterProfanity(text) {
             let filteredText = text;
             badWords.forEach(word => {
-                const replacement = "🫧".repeat(word.length);
+                const replacement = "🔲".repeat(word.length); // 픽셀 느낌의 네모로 비속어 대체
                 filteredText = filteredText.replace(new RegExp(word, "g"), replacement);
             });
             return filteredText;
@@ -176,38 +233,6 @@
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
-        // 🌟 3. 이름의 맨 마지막 글자 받침(종성) 유무를 계산하여 '이/가'를 반환하는 함수
-        function getKoreanParticle(name) {
-            const lastChar = name.charCodeAt(name.length - 1);
-            // 한글 유니코드 범위 밖이면 기본값 '가' 반환
-            if (lastChar < 0xAC00 || lastChar > 0xD7A3) return "가";
-            // 종성(받침) 여부 계산 (나머지가 0보다 크면 받침이 있는 것)
-            const hasJongseong = (lastChar - 0xAC00) % 28 > 0;
-            return hasJongseong ? "이" : "가";
-        }
-
-        // 🌟 알림 표시 함수 적용
-        function showJoinNotice(nickname) {
-            const particle = getKoreanParticle(nickname); // '이' 또는 '가' 판별
-            const noticeText = `${nickname}${particle} 비눗방울을 불러 왔어요!`;
-
-            // 1. 최상단 중앙 알림 배너 (이모지는 일반체, 텍스트는 기울임체 적용)
-            const banner = document.createElement('div');
-            banner.classList.add('notice-banner');
-            banner.innerHTML = `<span class="notice-icon">📢🫧</span> <span class="notice-text">${noticeText}</span>`;
-            banner.style.animation = `fadeOutAlert ${currentWind.time}s ease-in forwards`;
-            gameArea.appendChild(banner);
-            
-            setTimeout(() => { banner.remove(); }, currentWind.time * 1000);
-
-            // 2. 우측 채팅창에도 똑같이 스타일 분리해서 추가
-            const logItem = document.createElement('div');
-            logItem.classList.add('log-item', 'log-notice');
-            logItem.innerHTML = `<span class="notice-icon">📢🫧</span> <span class="notice-text">${noticeText}</span>`;
-            chatLog.appendChild(logItem);
-            chatLog.scrollTop = chatLog.scrollHeight;
-        }
-
         function createChatBubble(nickname, messageText) {
             const messageLength = messageText.length + nickname.length;
             const chatBubble = document.createElement('div');
@@ -233,16 +258,12 @@
 
             chatBubble.style.setProperty('--target-x', currentWind.x + 'px');
             chatBubble.style.setProperty('--target-y', currentWind.y);
-            chatBubble.style.animation = `blowAway ${currentWind.time}s ease-in forwards`;
+            chatBubble.style.animation = `blowAway ${currentWind.time}s linear forwards`; // 픽셀 느낌 위해 linear 애니메이션
 
             gameArea.appendChild(chatBubble);
 
             setTimeout(() => { chatBubble.remove(); }, currentWind.time * 1000);
         }
-
-        socket.on('user joined', (nickname) => {
-            showJoinNotice(nickname);
-        });
 
         socket.on('chat message', (data) => {
             createChatBubble(data.nickname, data.message);
@@ -256,12 +277,12 @@
                 if (checkSpam()) {
                     isChatBanned = true;
                     chatInput.disabled = true; 
-                    chatInput.placeholder = "도배 방지! 20초간 채팅이 금지됩니다.";
+                    chatInput.placeholder = "도배 금지! 20초 쿨타임.";
                     chatInput.value = '';
                     setTimeout(() => {
                         isChatBanned = false;
                         chatInput.disabled = false;
-                        chatInput.placeholder = "최대 20자까지 입력 가능!";
+                        chatInput.placeholder = "최대 20자 입력!";
                         chatTimestamps = []; 
                         chatInput.focus();
                     }, 20000);
@@ -302,11 +323,20 @@
             if (currentBubble) {
                 currentBubble.style.setProperty('--target-x', currentWind.x + 'px');
                 currentBubble.style.setProperty('--target-y', currentWind.y);
-                currentBubble.style.animation = `blowAway ${currentWind.time}s ease-in forwards`;
+                currentBubble.style.animation = `blowAway ${currentWind.time}s linear forwards`;
                 const tempBubble = currentBubble;
                 setTimeout(() => { tempBubble.remove(); }, currentWind.time * 1000); currentBubble = null;
             }
         });
+        
+        // 터치 지원 (모바일용)
+        gameArea.addEventListener('touchstart', (e) => {
+            if(e.target === locationSelect || e.target === windSelect || e.target === chatInput || chatLog.contains(e.target)) return;
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY });
+            gameArea.dispatchEvent(mouseEvent);
+        });
+        window.addEventListener('touchend', () => { window.dispatchEvent(new Event('mouseup')); });
     </script>
 </body>
-</html>                             
+</html>
