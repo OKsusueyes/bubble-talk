@@ -142,7 +142,7 @@
     <div id="chatLog" class="chat-log"></div>
 
     <div class="chat-container">
-        <input type="text" id="chatInput" maxlength="20" placeholder="최대 20자 입력!" autocomplete="off">
+        <input type="text" id="chatInput" maxlength="20" placeholder="최대 20자 입력가능!" autocomplete="off">
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -157,8 +157,8 @@
         const chatLog = document.getElementById('chatLog');
         const wand = document.getElementById('wand');
 
-        const adjectives = ["귀여운", "멋진", "행복한", "졸린", "씩씩한", "신비한", "엉뚱한", "다정한"];
-        const nouns = ["강아지", "고양이", "거북이", "토끼", "다람쥐", "너구리", "펭귄", "참새"];
+        const adjectives = ["귀여운", "멋진", "행복한", "졸린", "씩씩한", "신비한", "엉뚱한", "다정한", "배고픈", "배부른", "깜찍한", "맹한", "노래하는", "신비한"];
+        const nouns = ["강아지", "고양이", "거북이", "토끼", "다람쥐", "너구리", "펭귄", "참새", "자라", "카멜레온", "병아리", "햄스터", "기니피그"];
         const myNickname = adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
 
         locationSelect.addEventListener('change', (e) => { gameArea.className = e.target.value; });
@@ -199,7 +199,7 @@
         }
 
         socket.emit('user connect notification', myNickname);
-        showNotice(`나(${myNickname})도 비눗방울 불어야지~`);
+        showNotice(`나는(${myNickname})!`);
 
         socket.on('user joined', (nickname) => {
             showNotice(`${nickname}${getParticleI_Ga(nickname)} 비눗방울을 불러 왔어요!`);
@@ -303,7 +303,7 @@
                     setTimeout(() => {
                         isChatBanned = false;
                         chatInput.disabled = false;
-                        chatInput.placeholder = "최대 20자 입력!";
+                        chatInput.placeholder = "최대 20자 입력가능!";
                         chatTimestamps = []; 
                         chatInput.focus();
                     }, 20000);
