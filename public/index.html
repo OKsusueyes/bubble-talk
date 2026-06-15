@@ -189,7 +189,7 @@
         @media (max-width: 768px) {
             select { font-size: 0.85rem; padding: 6px; }
             .instruction-text, .update-notice, .board-toggle-btn { font-size: 0.75rem; padding: 5px 8px; }
-            .chat-log { height: 110px; bottom: 150px; padding: 6px 8px; }
+            .chat-log { height: 110px; bottom: 100px; padding: 6px 8px; }
             .chat-container { bottom: 30px; }
             .log-item { font-size: 0.75rem; }
             .log-notice { font-style: normal; font-size: 0.7rem; }
@@ -197,7 +197,13 @@
             #sendBtn { font-size: 0.8rem; padding: 8px 12px 8px 5px; }
             .bubble-nickname { font-size: 0.7rem; }
             .bubble-text { font-size: 0.9rem; }
-        }
+            /* 1. 닫기 버튼(X): 강제로 파란색이 되는 현상 방지 */
+            .board-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; font-family: 'DungGeunMo', sans-serif; color: #000; }
+            /* 2. 입력창: padding을 8px로 늘려 아래 목록과 시작점을 완벽히 일치시키고, 모바일에서 테두리 둥글어짐 방지 */
+            .board-input { flex: 1; border: 2px solid #000; padding: 8px; font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; outline: none; box-sizing: border-box; border-radius: 0; }
+            /* 3. 작성 버튼: 파란 글씨 방지 및 모바일 테두리 둥글어짐 방지 */
+            .board-submit { border: 2px solid #000; background: #ffffff; padding: 6px 10px; font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; cursor: pointer; box-shadow: 2px 2px 0px #000; color: #000; border-radius: 0; }
+             }
     </style>
 </head>
 <body class="bg-playground" id="gameArea">
