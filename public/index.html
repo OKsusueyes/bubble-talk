@@ -38,24 +38,30 @@
             background: #fff; box-shadow: 4px 4px 0px #000; cursor: pointer;
         }
         
-        /* 🌟 수정된 안내 문구 */
+        /* 🌟 줄바꿈 및 중앙 정렬이 적용된 안내 문구 */
         .instruction-text {
             font-size: 0.85rem; color: #000; background: #fff; border: 2px solid #000; 
-            padding: 5px 8px; width: max-content; box-shadow: 2px 2px 0px #000; margin-top: 5px;
+            padding: 6px 10px; width: max-content; box-shadow: 2px 2px 0px #000; margin-top: 5px;
+            text-align: center; line-height: 1.4;
         }
 
+        /* 🌟 더 투명해지고 크기가 줄어든 미니멀 채팅창 */
         .chat-log { 
             position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); 
-            width: 90%; max-width: 350px; height: 130px; 
-            background: rgba(255, 255, 255, 0.8); 
+            width: 90%; max-width: 350px; 
+            height: 105px; /* 약 5줄이 들어가도록 높이 축소 */
+            background: rgba(255, 255, 255, 0.4); /* 0.8에서 0.4로 변경하여 투명도 증가 */
             border: 3px solid #000; border-radius: 0; box-shadow: 5px 5px 0px rgba(0,0,0,0.3);
-            padding: 10px; overflow-y: auto; z-index: 5; 
-            display: flex; flex-direction: column; gap: 6px; 
+            padding: 8px 10px; overflow-y: auto; z-index: 5; 
+            display: flex; flex-direction: column; gap: 5px; 
         }
-        .log-item { font-size: 0.9rem; color: #000; word-break: break-all; text-shadow: none; }
+        
+        /* 🌟 채팅 글씨 크기 축소 */
+        .log-item { font-size: 0.8rem; color: #000; word-break: break-all; text-shadow: none; }
         .log-nickname { font-weight: normal; color: #000; background: #ffeb3b; border: 1px solid #000; padding: 0 4px; margin-right: 5px; }
         
-        .log-notice { color: #555; font-size: 0.85rem; background: #eee; border: 1px dashed #aaa; padding: 3px; }
+        /* 알림 메시지도 크기 축소 및 투명도 조절 */
+        .log-notice { color: #555; font-size: 0.75rem; background: rgba(238, 238, 238, 0.7); border: 1px dashed #aaa; padding: 3px; }
         .notice-icon { font-style: normal; }
         .notice-text { font-style: italic; }
 
@@ -72,40 +78,29 @@
         }
         input[type="text"]:disabled { background-color: #ddd; color: #f00; border-color: #f00; }
         
-        /* 🌟 수정된 비눗방울 막대기 (동그란 형태, 그림판 느낌 제거, 하늘색) */
         #wand { 
             position: absolute; width: 40px; height: 40px; 
-            border: 4px solid #63B8FF; /* 하늘색 막대 링 */
-            border-radius: 50%; /* 동그라미로 변경! */
+            border: 4px solid #63B8FF; border-radius: 50%; 
             background: rgba(135, 206, 235, 0.2); 
             transform: translate(-50%, -50%); display: none; pointer-events: none; z-index: 5; 
         }
         #wand::after { 
             content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); 
-            width: 6px; height: 40px; background-color: #63B8FF; border: none; /* 깔끔한 손잡이 */
+            width: 6px; height: 40px; background-color: #63B8FF; border: none; 
         }
         
-        /* 🌟 대망의 비눗방울 디자인 (동그라미, 검은 테두리 제거, 마인크래프트 텍스쳐) */
         .bubble { 
-            position: absolute; 
-            border-radius: 50%; /* 동그란 비눗방울로 복귀 */
-            background-color: rgba(135, 206, 235, 0.4); /* 청량한 반투명 하늘색 바탕 */
-            
-            /* 마인크래프트 유리 블록 텍스쳐 (하얀색 픽셀 얼룩 L자 모양) */
+            position: absolute; border-radius: 50%; background-color: rgba(135, 206, 235, 0.4); 
             background-image: 
                 linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)),
                 linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)),
                 linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7));
-            background-size: 15% 15%, 15% 15%, 15% 15%; /* 픽셀 크기 */
-            background-position: 15% 15%, 30% 15%, 15% 30%; /* L자로 배치 */
-            background-repeat: no-repeat;
-            
-            border: 3px solid rgba(100, 180, 230, 0.8); /* 검은색 제거, 예쁜 하늘색 테두리 */
-            box-shadow: inset -6px -6px 0px rgba(100, 180, 230, 0.5); /* 픽셀 안쪽 음영 */
+            background-size: 15% 15%, 15% 15%, 15% 15%; 
+            background-position: 15% 15%, 30% 15%, 15% 30%; background-repeat: no-repeat;
+            border: 3px solid rgba(100, 180, 230, 0.8); box-shadow: inset -6px -6px 0px rgba(100, 180, 230, 0.5); 
             transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; 
         }
         
-        /* 비눗방울 안의 닉네임 박스도 하늘색 톤에 맞춤 */
         .bubble-nickname { font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffeb3b; padding: 0 4px; border: 1px solid rgba(100, 180, 230, 0.8); }
         .bubble-text { color: #000; font-size: 1rem; text-align: center; padding: 0 10px; word-break: break-all; text-shadow: 1px 1px 0px #fff; }
         
@@ -141,7 +136,7 @@
                 <option value="typhoon">태풍</option>
             </select>
         </div>
-        <div class="instruction-text">마우스/터치 를 꾹 누르면 나만의 비눗방울을 불 수 있어요! 크게 불어보세요!😗</div>
+        <div class="instruction-text">꾹 누르면 나만의 비눗방울을 불 수 있어요!<br>대왕 비눗방울을 불어보세요!😗💨🫧</div>
     </div>
     
     <div id="chatLog" class="chat-log"></div>
@@ -248,9 +243,25 @@
             const chatBubble = document.createElement('div');
             chatBubble.classList.add('bubble');
             
-            const randomX = Math.floor(Math.random() * 80) + 10;
-            chatBubble.style.left = randomX + '%';
-            chatBubble.style.top = '85%'; 
+            // 🌟 생성 위치 제한 로직: 중앙의 채팅창을 피해서 왼쪽, 오른쪽, 위쪽으로만 생성
+            const zone = Math.floor(Math.random() * 3);
+            let startX, startY;
+            if (zone === 0) {
+                // 구역 1: 화면의 왼쪽 아래
+                startX = Math.random() * 15 + 5;  // 5% ~ 20%
+                startY = Math.random() * 10 + 75; // 75% ~ 85%
+            } else if (zone === 1) {
+                // 구역 2: 화면의 오른쪽 아래
+                startX = Math.random() * 15 + 80; // 80% ~ 95%
+                startY = Math.random() * 10 + 75; // 75% ~ 85%
+            } else {
+                // 구역 3: 채팅창보다 한참 위쪽
+                startX = Math.random() * 80 + 10; // 10% ~ 90%
+                startY = Math.random() * 20 + 45; // 45% ~ 65%
+            }
+            
+            chatBubble.style.left = startX + '%';
+            chatBubble.style.top = startY + '%'; 
             
             const calculatedSize = 80 + (messageLength * 6); 
             chatBubble.style.width = calculatedSize + 'px';
@@ -323,7 +334,6 @@
             currentBubble.style.left = e.clientX + 'px'; currentBubble.style.top = e.clientY + 'px';
             currentBubble.style.animation = 'none'; gameArea.appendChild(currentBubble);
             
-            // 🌟 꾹 누를 때 최대 크기 2배 증가 (300 -> 600)
             growInterval = setInterval(() => {
                 if (bubbleSize < 600) { bubbleSize += 5; currentBubble.style.width = bubbleSize + 'px'; currentBubble.style.height = bubbleSize + 'px'; }
             }, 30);
