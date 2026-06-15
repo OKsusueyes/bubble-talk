@@ -44,7 +44,6 @@
             text-align: left; line-height: 1.4;
         }
 
-        /* 🌟 업데이트 노트 박스 (bold -> normal 변경 및 텍스트 수정) */
         .update-notice {
             display: block; font-size: 0.85rem; color: #000; background: #fff; border: 2px solid #000;
             padding: 6px 10px; width: max-content; box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
@@ -52,10 +51,11 @@
         }
         .update-notice:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,0.3); }
 
+        /* 🌟 수정: 간격 축소(bottom: 75px) 및 높이 증가(height: 130px) */
         .chat-log { 
             box-sizing: border-box;
-            position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); 
-            width: 90%; max-width: 350px; height: 105px; 
+            position: absolute; bottom: 75px; left: 50%; transform: translateX(-50%); 
+            width: 90%; max-width: 350px; height: 130px; 
             background: rgba(255, 255, 255, 0.4); 
             border: 3px solid #000; border-radius: 0; box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
             padding: 8px 10px; overflow-y: auto; z-index: 5; 
@@ -86,16 +86,18 @@
             border: 3px solid #000; box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
         }
         
+        /* 🌟 수정: 입력창 폰트 사이즈 0.85rem으로 축소 */
         input[type="text"] { 
-            flex: 1; box-sizing: border-box; padding: 10px 15px; font-size: 1rem; 
+            flex: 1; box-sizing: border-box; padding: 10px 15px; font-size: 0.85rem; 
             font-family: 'DungGeunMo', sans-serif; border: none; outline: none; background: transparent;
         }
         input[type="text"]:disabled { background-color: #ddd; color: #f00; }
 
         .divider { width: 2px; height: 20px; background-color: #aaa; margin: 0 5px; }
 
+        /* 🌟 수정: 버튼 폰트 사이즈 0.85rem으로 축소 */
         #sendBtn {
-            font-family: 'DungGeunMo', sans-serif; font-size: 1rem; font-weight: normal;
+            font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; font-weight: normal;
             background: transparent; border: none; padding: 10px 15px 10px 5px; 
             cursor: pointer; outline: none; color: #000;
         }
@@ -174,7 +176,6 @@
             </select>
         </div>
         <div class="instruction-text">꾹 누르면 나만의 비눗방울을 불 수 있어요!<br>대왕 비눗방울을 불어보세요!😗💨🫧</div>
-        <!-- 🌟 Update Notes 로 변경! -->
         <a href="https://app.notion.com/p/380e249edb9380e3bb2bde997219b8ae?source=copy_link" target="_blank" class="update-notice">💡Update Notes</a>
     </div>
     
@@ -287,8 +288,9 @@
             const chatBubble = document.createElement('div');
             chatBubble.classList.add('bubble');
             
+            // 🌟 수정: 채팅창이 더 높아졌으므로 겹치지 않도록 높이를 215px로 보정
             chatBubble.style.left = (Math.random() * 80 + 10) + '%';
-            chatBubble.style.bottom = '195px'; 
+            chatBubble.style.bottom = '215px'; 
             chatBubble.style.top = 'auto'; 
             
             const calculatedSize = 80 + (messageLength * 6); 
