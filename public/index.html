@@ -18,26 +18,44 @@
         .ui-container { position: absolute; top: 20px; left: 20px; z-index: 10; display: flex; gap: 10px; }
         select { padding: 10px; font-size: 1rem; border-radius: 8px; border: 2px solid #ccc; outline: none; background: rgba(255,255,255,0.8); }
         
-        /* 🌟 새로 추가된 채팅 기록창 디자인 */
+        /* 🌟 1. 오른쪽 사이드로 길어지고 더 투명해진 채팅 기록창 */
         .chat-log { 
             position: absolute; 
-            bottom: 80px; /* 입력창 바로 위에 위치 */
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: 370px; 
-            height: 200px; /* 창 높이 */
-            background: rgba(255, 255, 255, 0.6); /* 반투명 하얀색 배경 */
+            top: 20px;
+            right: 20px; 
+            width: 300px; 
+            height: calc(100% - 130px); /* 화면 높이에 맞춰 길게 설정 */
+            background: rgba(255, 255, 255, 0.25); /* 투명도를 0.6에서 0.25로 낮춤 */
+            backdrop-filter: blur(4px); /* 투명창을 더 예쁘게 만들어주는 흐림 효과 */
             border-radius: 15px; 
             padding: 15px; 
-            overflow-y: auto; /* 내용이 길어지면 스크롤 생성 */
+            overflow-y: auto; 
             z-index: 5; 
             display: flex; 
             flex-direction: column; 
             gap: 8px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
         }
         .log-item { font-size: 0.95rem; color: #222; word-break: break-all; }
         .log-nickname { font-weight: bold; color: #555; margin-right: 5px; }
+        
+        /* 🌟 입장 알림 메시지 전용 스타일 (기울임체, 회색) */
+        .log-notice { color: #888888; font-style: italic; font-size: 0.9rem; }
+
+        /* 🌟 최상단 중앙 알림 메시지 스타일 */
+        .notice-banner {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-style: italic;
+            color: #777777;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.9);
+            z-index: 30;
+            pointer-events: none;
+        }
 
         .chat-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; }
         input[type="text"] { padding: 12px 20px; width: 350px; font-size: 1rem; border-radius: 20px; border: 2px solid #aaa; box-shadow: 0 4px 6px rgba(0,0,0,0.1); outline: none; }
@@ -55,6 +73,12 @@
             95% { transform: translate(calc(-50% + var(--target-x)), var(--target-y)) scale(1.1); opacity: 0.8; }
             98% { transform: translate(calc(-50% + var(--target-x)), var(--target-y)) scale(1.5); opacity: 0; box-shadow: none; }
             100% { transform: translate(calc(-50% + var(--target-x)), var(--target-y)) scale(1.5); opacity: 0; }
+        }
+
+        /* 🌟 알림창이 서서히 사라지는 애니메이션 효과 */
+        @keyframes fadeOutAlert {
+            0% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
         }
     </style>
 </head>
@@ -92,7 +116,7 @@
         const locationSelect = document.getElementById('locationSelect');
         const windSelect = document.getElementById('windSelect');
         const chatInput = document.getElementById('chatInput');
-        const chatLog = document.getElementById('chatLog'); // 채팅창 가져오기
+        const chatLog = document.getElementById('chatLog');
         const wand = document.getElementById('wand');
 
         // 랜덤 닉네임 생성
@@ -100,7 +124,10 @@
         const nouns = ["강아지", "고양이", "거북이", "토끼", "다람쥐", "너구리", "펭귄", "참새"];
         const myNickname = adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
 
-        // 비속어 필터 (강화된 버전 적용!)
+        // 🌟 접속하자마자 서버에 내 닉네임을 알려주며 입장 알림 요청하기
+        socket.emit('user connect notification', myNickname);
+
+        // 비속어 필터
         const badWords = [
             "씨발", "시발", "ㅆㅂ", "ㅅㅂ", "개새끼", "개새", "ㄱㅅㄲ", "개자식",
             "병신", "ㅂㅅ", "등신", "쪼다", "찐따", "미친", "미친놈", "지랄", "ㅈㄹ", 
@@ -115,7 +142,6 @@
             return filteredText;
         }
 
-        // 도배 방지 변수
         let chatTimestamps = [];
         let isChatBanned = false;
 
@@ -137,17 +163,37 @@
         let currentWind = windSettings.clear;
         windSelect.addEventListener('change', (e) => { currentWind = windSettings[e.target.value]; });
 
-        // 🌟 채팅창에 글씨를 추가하는 함수
         function appendToChatLog(nickname, messageText) {
             const logItem = document.createElement('div');
             logItem.classList.add('log-item');
             logItem.innerHTML = `<span class="log-nickname">[${nickname}]</span> ${messageText}`;
             chatLog.appendChild(logItem);
-            // 새 메시지가 오면 스크롤을 맨 아래로 자동으로 내려줍니다.
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
-        // 비눗방울 애니메이션 생성 함수
+        // 🌟 다른 사람이 들어왔을 때 최상단 중앙 알림 및 채팅창에 기록하는 함수
+        function showJoinNotice(nickname) {
+            const alertText = `📢🫧 ${nickname}가 비눗방울을 불러 왔어요!`;
+
+            // 1. 최상단 중앙 알림 배너 생성
+            const banner = document.createElement('div');
+            banner.classList.add('notice-banner');
+            banner.innerText = alertText;
+            // 현재 바람 세기의 사라지는 속도(time)와 동일하게 애니메이션 설정
+            banner.style.animation = `fadeOutAlert ${currentWind.time}s ease-in forwards`;
+            gameArea.appendChild(banner);
+            
+            // 애니메이션이 끝나면 요소 완전 삭제
+            setTimeout(() => { banner.remove(); }, currentWind.time * 1000);
+
+            // 2. 우측 채팅창에 회색 기울임체 글씨로 추가
+            const logItem = document.createElement('div');
+            logItem.classList.add('log-item', 'log-notice');
+            logItem.innerText = alertText;
+            chatLog.appendChild(logItem);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
         function createChatBubble(nickname, messageText) {
             const messageLength = messageText.length + nickname.length;
             const chatBubble = document.createElement('div');
@@ -180,10 +226,14 @@
             setTimeout(() => { chatBubble.remove(); }, currentWind.time * 1000);
         }
 
-        // 서버에서 다른 사람의 메시지를 받았을 때
+        // 🌟 서버로부터 다른 유저의 입장 신호를 받았을 때 알림 켜기
+        socket.on('user joined', (nickname) => {
+            showJoinNotice(nickname);
+        });
+
         socket.on('chat message', (data) => {
-            createChatBubble(data.nickname, data.message); // 비눗방울 띄우기
-            appendToChatLog(data.nickname, data.message);  // 🌟 채팅창에도 기록하기!
+            createChatBubble(data.nickname, data.message);
+            appendToChatLog(data.nickname, data.message);
         });
 
         chatInput.addEventListener('keypress', (e) => {
@@ -213,16 +263,16 @@
                     message: filteredMessage
                 });
 
-                createChatBubble(myNickname, filteredMessage); // 내 비눗방울 띄우기
-                appendToChatLog(myNickname, filteredMessage);  // 🌟 내 메시지도 채팅창에 기록하기!
+                createChatBubble(myNickname, filteredMessage);
+                appendToChatLog(myNickname, filteredMessage);
                 
                 chatInput.value = '';
             }
         });
 
-        // 클릭해서 비눗방울 부풀리기
         let isBlowing = false, currentBubble = null, bubbleSize = 20, growInterval = null;
         gameArea.addEventListener('mousedown', (e) => {
+            // 채팅창이나 입력창 클릭 시에는 비눗방울이 생기지 않도록 방어 코드 추가
             if(e.target === locationSelect || e.target === windSelect || e.target === chatInput || chatLog.contains(e.target)) return;
             isBlowing = true; bubbleSize = 20;
             wand.style.display = 'block'; wand.style.left = e.clientX + 'px'; wand.style.top = e.clientY + 'px';
