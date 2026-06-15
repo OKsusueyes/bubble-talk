@@ -155,27 +155,6 @@
             100% { opacity: 0; transform: translate(-50%, -30px); }
         }
 
-        /* 🌟 PC 화면(가로 너비 768px 이상)일 때만 작동하는 반응형 디자인 */
-        @media (min-width: 768px) {
-            /* 1. PC에서는 채팅창을 더 넓고 높게! */
-            .chat-log { 
-                max-width: 600px; /* 모바일 350px -> PC 600px로 확장 */
-                height: 200px;    /* 높이도 더 길게 */
-                bottom: 90px;     /* 간격 살짝 띄우기 */
-            }
-            
-            /* 2. PC에서는 입력창도 채팅창 너비에 맞춰서 넓게! */
-            .chat-container { 
-                max-width: 600px; 
-                bottom: 30px;
-            }
-            
-            /* 3. 상단 안내 문구들도 PC에서는 글씨를 조금 더 크게! */
-            .instruction-text, .update-notice {
-                font-size: 1rem; 
-                padding: 10px 15px;
-            }
-        }
     </style>
 </head>
 <body class="bg-playground" id="gameArea">
