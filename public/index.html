@@ -51,7 +51,6 @@
         }
         .update-notice:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,0.3); }
 
-        /* 🌟 수정: 간격 축소(bottom: 75px) 및 높이 증가(height: 130px) */
         .chat-log { 
             box-sizing: border-box;
             position: absolute; bottom: 75px; left: 50%; transform: translateX(-50%); 
@@ -86,7 +85,6 @@
             border: 3px solid #000; box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
         }
         
-        /* 🌟 수정: 입력창 폰트 사이즈 0.85rem으로 축소 */
         input[type="text"] { 
             flex: 1; box-sizing: border-box; padding: 10px 15px; font-size: 0.85rem; 
             font-family: 'DungGeunMo', sans-serif; border: none; outline: none; background: transparent;
@@ -95,7 +93,6 @@
 
         .divider { width: 2px; height: 20px; background-color: #aaa; margin: 0 5px; }
 
-        /* 🌟 수정: 버튼 폰트 사이즈 0.85rem으로 축소 */
         #sendBtn {
             font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; font-weight: normal;
             background: transparent; border: none; padding: 10px 15px 10px 5px; 
@@ -155,6 +152,23 @@
             100% { opacity: 0; transform: translate(-50%, -30px); }
         }
 
+        /* 🌟 모바일 화면 전용 UI 전체 축소 로직 (가로 768px 이하일 때만 발동) */
+        @media (max-width: 768px) {
+            select { font-size: 0.85rem; padding: 6px; }
+            .instruction-text, .update-notice { font-size: 0.75rem; padding: 5px 8px; }
+            
+            /* 모바일에서는 채팅창 높이와 간격 살짝 조절 */
+            .chat-log { height: 110px; bottom: 70px; padding: 6px 8px; }
+            .log-item { font-size: 0.75rem; }
+            .log-notice { font-size: 0.7rem; }
+            
+            .chat-container { bottom: 15px; }
+            input[type="text"] { font-size: 0.8rem; padding: 8px 12px; }
+            #sendBtn { font-size: 0.8rem; padding: 8px 12px 8px 5px; }
+            
+            .bubble-nickname { font-size: 0.7rem; }
+            .bubble-text { font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body class="bg-playground" id="gameArea">
@@ -289,7 +303,6 @@
             const chatBubble = document.createElement('div');
             chatBubble.classList.add('bubble');
             
-            // 🌟 수정: 채팅창이 더 높아졌으므로 겹치지 않도록 높이를 215px로 보정
             chatBubble.style.left = (Math.random() * 80 + 10) + '%';
             chatBubble.style.bottom = '215px'; 
             chatBubble.style.top = 'auto'; 
