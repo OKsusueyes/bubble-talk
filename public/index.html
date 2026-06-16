@@ -1,9 +1,22 @@
+아하, 화면이 넘어갈 때 배경색이 먼저 휙! 하고 나타났다가 이미지가 뜨는 현상(Color Flashing)을 겪으셨군요!
+
+이건 브라우저가 무거운 '이미지'를 부드럽게 섞는 시간보다, 가벼운 '단색 배경색'을 바꾸는 속도가 훨씬 빨라서 생기는 아주 클래식한 프론트엔드 이슈입니다. 이제 든든한 배경 이미지들이 모두 준비되었으니, 눈에 거슬리는 단색 배경과 그라데이션 잔재들은 코딩에서 완전히 빼버리는 게 정답입니다.
+
+말씀하신 대로 **불필요한 배경색 코드는 전부 날려버리고, 오직 이미지 간에만 스르륵~ 부드럽게 페이드인/아웃 전환**되도록 전체 코드를 다시 다듬었습니다.
+
+아래 최종 코드를 복사해서 `index.html`을 통째로 덮어씌워 주세요!
+
+---
+
+### 🖼️ 배경 전환이 매끄러워진 `index.html` 최종본
+
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>비눗방울 톡!</title>
+    <title>온라인 비눗방울 불기</title>
     <style>
         @font-face {
             font-family: 'DungGeunMo';
@@ -12,28 +25,38 @@
             font-style: normal;
         }
 
-        /* 1. 기본 설정 및 🌟 부드러운 전환(transition) 애니메이션 추가 */
+        /* 🌟 전역 픽셀 변수 유지 */
+        :root {
+            --bubble-polygon: polygon(
+                31.25% 0%, 68.75% 0%, 68.75% 6.25%, 81.25% 6.25%, 81.25% 18.75%, 93.75% 18.75%, 
+                93.75% 31.25%, 100% 31.25%, 100% 68.75%, 93.75% 68.75%, 93.75% 81.25%, 
+                81.25% 81.25%, 81.25% 93.75%, 68.75% 93.75%, 68.75% 100%, 31.25% 100%, 
+                31.25% 93.75%, 18.75% 93.75%, 18.75% 81.25%, 6.25% 81.25%, 6.25% 68.75%, 
+                0% 68.75%, 0% 31.25%, 6.25% 31.25%, 6.25% 18.75%, 18.75% 18.75%, 
+                18.75% 6.25%, 31.25% 6.25%
+            );
+        }
+
+        /* 🌟 배경 전환 최적화: color transition 삭제, image transition만 남김 */
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; 
             font-family: 'DungGeunMo', sans-serif; 
             
-            /* 이미지가 화면에 꽉 차도록 설정 */
             background-size: cover; 
             background-position: center; 
             background-repeat: no-repeat;
+            background-color: #000; /* 이미지 로딩 전 기본 밑바탕색 (깜빡임 방지용 검은색) */
             
-            /* 🌟 배경 이미지와 색상이 자연스럽게 바뀌도록 설정 */
-            transition: background-image 0.5s ease-in-out, background-color 0.2s ease-in-out; 
+            transition: background-image 0.8s ease-in-out; 
         }
         
-        /* 2. 각 장소별 배경 이미지 주소(url) 연결 */
-        /* ⚠️ 괄호 안의 파일명('playground.jpg' 등)을 실제 저장하신 이미지 이름으로 꼭 맞춰주세요! */
+        /* 🌟 불필요한 색상(background-color) 싹 제거, 순수 이미지만 연결 */
         .bg-playground { background-image: url('놀이터.png'); }
         .bg-rooftop { background-image: url('옥상.png'); }
         .bg-school { background-image: url('학교.png'); }
         .bg-park { background-image: url('공원.png'); }
-        .bg-night { background-image: url('밤 시골길.png'); }
-                       
+        .bg-night { background-image: url('밤 시골길.png'); color: white; }
+
         .ui-container { position: absolute; top: 20px; left: 20px; z-index: 10; display: flex; flex-direction: column; gap: 8px; }
         .select-group { display: flex; gap: 10px; }
         select { 
@@ -140,35 +163,33 @@
         }
         #sendBtn:active { transform: translateY(2px); }
         
-        /* 🌟 [막대기 복구] 전체 컨테이너와 동그라미 링, 일자 막대기 영역 분리! */
         #wand-container { 
             position: absolute; width: 40px; height: 80px; 
-            transform: translate(-50%, -20px); /* 동그라미 중심이 마우스에 오도록 조절 */
+            transform: translate(-50%, -20px); 
             display: none; pointer-events: none; z-index: 5; 
         }
         #wand-ring {
             position: absolute; top: 0; left: 0; width: 40px; height: 40px; 
-            background-color: #63B8FF; /* 막대기 파란색 */
-            /* Javascript에서 속이 뻥 뚫린 직각 도넛 모양(getPixelDonutPolygon)을 동적으로 씌워줍니다! */
+            background-color: #63B8FF; 
         }
         #wand-stick {
             position: absolute; top: 38px; left: 50%; transform: translateX(-50%);
             width: 6px; height: 40px; background-color: #63B8FF; border: none;
         }
         
-        /* 비트맵 무지개 비눗방울 */
         .bubble { 
             position: absolute; 
             background: conic-gradient(from 0deg, #ffb3ba, #e0c3fc, #bae1ff, #baffc9, #ffdfba, #ffb3ba);
+            clip-path: var(--bubble-polygon);
             transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; 
         }
 
         .bubble::before {
             content: ''; position: absolute;
             top: 6px; left: 6px; right: 6px; bottom: 6px; 
-            background-color: #ffffff; /* 텍스트 가독성을 위한 하얀 배경 */
+            background-color: #ffffff; 
+            clip-path: var(--bubble-polygon); 
             z-index: 0; 
-            /* 부모(.bubble)가 커질 때 자바스크립트가 똑같은 모양의 둥근 픽셀 계단으로 안쪽도 같이 잘라줍니다. */
         }
         
         .bubble-nickname { font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffffff; padding: 3px 4px; border: 1px solid rgba(100, 180, 230, 0.8); font-weight: normal; position: relative; z-index: 1; }
@@ -277,7 +298,6 @@
         const sendBtn = document.getElementById('sendBtn');
         const chatLog = document.getElementById('chatLog');
         
-        // 🌟 수정된 막대기 변수
         const wandContainer = document.getElementById('wand-container');
         const wandRing = document.getElementById('wand-ring');
 
@@ -296,7 +316,6 @@
         const nouns = ["강아지", "고양이", "거북이", "토끼", "다람쥐", "너구리", "펭귄", "참새", "자라", "카멜레온", "병아리", "햄스터", "기니피그"];
         const myNickname = adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
 
-        // 🌟 1. 꽉 찬 픽셀 둥근 테두리를 계산하는 수학 함수
         function getPixelCirclePolygon(steps) {
             const r = Math.max(1, Math.floor(steps / 2));
             const points = [];
@@ -311,7 +330,6 @@
             return `polygon(${points.join(', ')})`;
         }
 
-        // 🌟 2. [추가됨] 속이 뻥 뚫린 '도넛 모양' 픽셀 테두리를 그리는 수학 함수 (채우기X 막대기 링 전용)
         function getPixelDonutPolygon(steps, thicknessRatio) {
             const r = Math.max(1, Math.floor(steps / 2));
             const outer = [];
@@ -337,11 +355,9 @@
             for(let y = ir-1; y >= 0; y--) { addInner(iw[y+1], y+1); addInner(iw[y], y+1); }
             for(let y = 1; y <= ir; y++) { addInner(iw[y-1], -y); addInner(iw[y], -y); }
 
-            // 겉과 속을 미세한 틈으로 연결하여 완벽한 구멍 뚫린 도넛(링) 완성!
             return `polygon(${outer.join(', ')}, ${inner[0]}, ${inner.join(', ')}, ${inner[inner.length-1]}, ${outer[0]})`;
         }
 
-        // 초기화 시 막대기 링 부분에 도넛 형태 적용 (16계단, 두께비율 3)
         wandRing.style.clipPath = getPixelDonutPolygon(16, 3);
 
         locationSelect.addEventListener('change', (e) => { gameArea.className = e.target.value; });
@@ -448,13 +464,11 @@
             chatBubble.style.width = calculatedSize + 'px';
             chatBubble.style.height = calculatedSize + 'px';
 
-            // 비눗방울이 생성될 때 크기에 맞춰 다이나믹하게 픽셀 쪼개기
             let steps = Math.floor(calculatedSize / 6);
             if (steps % 2 !== 0) steps++;
             const dynamicPolygon = getPixelCirclePolygon(steps);
             chatBubble.style.clipPath = dynamicPolygon;
 
-            // 가상 요소(하얀 배경)를 제어하기 위한 스타일 태그 삽입
             const styleId = 'style-' + Math.random().toString(36).substr(2, 9);
             chatBubble.id = styleId;
             const styleElem = document.createElement('style');
@@ -523,7 +537,6 @@
             currentBubble.style.bottom = 'auto';
             currentBubble.style.animation = 'none'; 
 
-            // 드래그 중인 비눗방울을 위한 고유 ID와 스타일
             const styleId = 'drag-bubble-' + Math.random().toString(36).substr(2, 9);
             currentBubble.id = styleId;
             currentStyleElem = document.createElement('style');
