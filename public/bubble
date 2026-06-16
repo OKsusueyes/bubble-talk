@@ -161,7 +161,7 @@
         .bubble::before {
             content: ''; position: absolute;
             top: 6px; left: 6px; right: 6px; bottom: 6px; 
-            background: rgba(255, 255, 255, 0.6);  
+            background-color: #ffffff; 
             clip-path: var(--bubble-polygon); 
             z-index: 0; 
         }
