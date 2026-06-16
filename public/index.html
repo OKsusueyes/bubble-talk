@@ -12,6 +12,18 @@
             font-style: normal;
         }
 
+        /* 🌟 기본 16x16 계단식 픽셀 폴리곤을 전역 변수로 저장 */
+        :root {
+            --bubble-polygon: polygon(
+                31.25% 0%, 68.75% 0%, 68.75% 6.25%, 81.25% 6.25%, 81.25% 18.75%, 93.75% 18.75%, 
+                93.75% 31.25%, 100% 31.25%, 100% 68.75%, 93.75% 68.75%, 93.75% 81.25%, 
+                81.25% 81.25%, 81.25% 93.75%, 68.75% 93.75%, 68.75% 100%, 31.25% 100%, 
+                31.25% 93.75%, 18.75% 93.75%, 18.75% 81.25%, 6.25% 81.25%, 6.25% 68.75%, 
+                0% 68.75%, 0% 31.25%, 6.25% 31.25%, 6.25% 18.75%, 18.75% 18.75%, 
+                18.75% 6.25%, 31.25% 6.25%
+            );
+        }
+
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'DungGeunMo', sans-serif; transition: background-color 0s; }
         
         .bg-playground { background-color: #fce4ec; }
@@ -136,83 +148,44 @@
         }
         #sendBtn:active { transform: translateY(2px); }
         
+        /* 🌟 [변경] 비눗방울 막대기도 완벽한 직각 계단식 픽셀 원형으로 재구성! */
         #wand { 
             position: absolute; width: 40px; height: 40px; 
-            border: 4px solid #63B8FF; border-radius: 50%; 
-            background: rgba(135, 206, 235, 0.2); 
+            background-color: #63B8FF; /* 막대기 파란색 외곽선 */
             transform: translate(-50%, -50%); display: none; pointer-events: none; z-index: 5; 
+            clip-path: var(--bubble-polygon); /* 비눗방울과 동일한 형태 사용 */
+        }
+        #wand::before {
+            content: ''; position: absolute;
+            top: 4px; left: 4px; right: 4px; bottom: 4px; /* 테두리 4px 남기기 */
+            background: rgba(135, 206, 235, 0.4); /* 안쪽 반투명 뚫린 효과 */
+            clip-path: var(--bubble-polygon);
         }
         #wand::after { 
             content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); 
             width: 6px; height: 40px; background-color: #63B8FF; border: none; 
         }
         
-        /* =========================================================
-           🌟 [수정] 대각선 없이 90도로만 꺾이는 '진짜 픽셀(비트맵)' 비눗방울 테두리! 
-           ========================================================= */
+        /* 🌟 [변경] 진짜 비트맵 직각 계단이 적용되는 무지개 비눗방울 */
         .bubble { 
             position: absolute; 
+            background: conic-gradient(from 0deg, #ffb3ba, #e0c3fc, #bae1ff, #baffc9, #ffdfba, #ffb3ba);
             
-            /* 무지개 그라데이션 */
-            background: conic-gradient(
-                from 0deg,
-                #ffb3ba, #e0c3fc, #bae1ff, #baffc9, #ffdfba, #ffb3ba
-            );
-            
-            /* 🌟 핵심: 대각선 없이 직각으로만 깎아낸 완벽한 16x16 픽셀 그리드 계단식 원형 */
-            clip-path: polygon(
-                30% 0%, 70% 0%, 
-                70% 6.25%, 81.25% 6.25%, 
-                81.25% 18.75%, 93.75% 18.75%, 
-                93.75% 30%, 100% 30%, 
-                100% 70%, 
-                93.75% 70%, 93.75% 81.25%, 
-                81.25% 81.25%, 81.25% 93.75%, 
-                70% 93.75%, 70% 100%, 
-                30% 100%, 
-                30% 93.75%, 18.75% 93.75%, 
-                18.75% 81.25%, 6.25% 81.25%, 
-                6.25% 70%, 0% 70%, 
-                0% 30%, 
-                6.25% 30%, 6.25% 18.75%, 
-                18.75% 18.75%, 18.75% 6.25%, 
-                30% 6.25%
-            );
+            /* 변수로 동적 할당되는 직각 픽셀 형태 */
+            clip-path: var(--bubble-polygon);
             
             transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; 
         }
 
-        /* 🌟 [수정] 비눗방울 안쪽을 하얗게 채워주는 가상 요소 */
         .bubble::before {
             content: '';
             position: absolute;
-            /* 테두리 두께 (수치를 늘리면 무지개 테두리가 더 두꺼워집니다) */
             top: 6px; left: 6px; right: 6px; bottom: 6px; 
-            background-color: #ffffff; /* 가독성을 위한 불투명 하얀색 */
-            
-            /* 바깥 테두리와 똑같은 계단식 픽셀 도형으로 깎기 */
-            clip-path: polygon(
-                30% 0%, 70% 0%, 
-                70% 6.25%, 81.25% 6.25%, 
-                81.25% 18.75%, 93.75% 18.75%, 
-                93.75% 30%, 100% 30%, 
-                100% 70%, 
-                93.75% 70%, 93.75% 81.25%, 
-                81.25% 81.25%, 81.25% 93.75%, 
-                70% 93.75%, 70% 100%, 
-                30% 100%, 
-                30% 93.75%, 18.75% 93.75%, 
-                18.75% 81.25%, 6.25% 81.25%, 
-                6.25% 70%, 0% 70%, 
-                0% 30%, 
-                6.25% 30%, 6.25% 18.75%, 
-                18.75% 18.75%, 18.75% 6.25%, 
-                30% 6.25%
-            );
-            z-index: 0; /* 텍스트 뒤로 보내기 */
+            background-color: #ffffff; /* 가독성 완벽 확보를 위한 하얀 바탕 */
+            clip-path: var(--bubble-polygon); /* 똑같이 계단식으로 자름 */
+            z-index: 0;
         }
         
-        /* z-index를 추가해서 글씨가 하얀 배경 위로 확실히 올라오게 수정 */
         .bubble-nickname { font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffffff; padding: 3px 4px; border: 1px solid rgba(100, 180, 230, 0.8); font-weight: normal; position: relative; z-index: 1; }
         .bubble-text { color: #000; font-size: 1rem; text-align: center; padding: 0 10px; word-break: break-all; text-shadow: none; font-weight: normal; position: relative; z-index: 1; }
         
@@ -332,6 +305,27 @@
         const nouns = ["강아지", "고양이", "거북이", "토끼", "다람쥐", "너구리", "펭귄", "참새", "자라", "카멜레온", "병아리", "햄스터", "기니피그"];
         const myNickname = adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
 
+        // 🌟 [추가] 완벽한 90도 직각 계단형 원형 좌표를 크기에 따라 동적으로 생성하는 알고리즘!
+        function getPixelCirclePolygon(steps) {
+            const r = Math.max(1, Math.floor(steps / 2));
+            const points = [];
+            // 좌표를 퍼센트로 환산하여 배열에 푸시
+            const add = (x, y) => points.push(`${(50 + (x/r)*50).toFixed(2)}% ${(50 + (y/r)*50).toFixed(2)}%`);
+            let w = [];
+            for(let y = 0; y <= r; y++) { w[y] = Math.round(Math.sqrt(r*r - y*y)); }
+            
+            // 1사분면 (우측 상단) -> 가로, 세로 계단 그리기
+            for(let y = r; y >= 1; y--) { add(w[y], -y); add(w[y-1], -y); }
+            // 2사분면 (우측 하단)
+            for(let y = 0; y <= r-1; y++) { add(w[y], y+1); add(w[y+1], y+1); }
+            // 3사분면 (좌측 하단)
+            for(let y = r; y >= 1; y--) { add(-w[y-1], y); add(-w[y-1], y-1); }
+            // 4사분면 (좌측 상단)
+            for(let y = 0; y <= r-1; y++) { add(-w[y], -(y+1)); add(-w[y+1], -(y+1)); }
+            
+            return `polygon(${points.join(', ')})`;
+        }
+
         locationSelect.addEventListener('change', (e) => { gameArea.className = e.target.value; });
         const windSettings = {
             clear:   { x: 0,   y: '-350px', time: 5.0 },    
@@ -359,10 +353,7 @@
             const text = boardInput.value.trim();
             if(text === '') return;
             
-            socket.emit('save board message', {
-                nickname: myNickname,
-                message: text
-            });
+            socket.emit('save board message', { nickname: myNickname, message: text });
             boardInput.value = '';
         });
 
@@ -375,18 +366,6 @@
                 boardList.appendChild(item);
             });
         });
-
-        function getParticleI_Ga(name) {
-            const lastChar = name.charCodeAt(name.length - 1);
-            if (lastChar < 0xAC00 || lastChar > 0xD7A3) return "가";
-            return (lastChar - 0xAC00) % 28 > 0 ? "이" : "가";
-        }
-
-        function getParticleEun_Neun(name) {
-            const lastChar = name.charCodeAt(name.length - 1);
-            if (lastChar < 0xAC00 || lastChar > 0xD7A3) return "는";
-            return (lastChar - 0xAC00) % 28 > 0 ? "은" : "는";
-        }
 
         function showNotice(text) {
             const banner = document.createElement('div');
@@ -406,13 +385,8 @@
         socket.emit('user connect notification', myNickname);
         showNotice(`나는(${myNickname})!`);
 
-        socket.on('user joined', (nickname) => {
-            showNotice(`${nickname}${getParticleI_Ga(nickname)} 비눗방울을 불러 왔어요!`);
-        });
-
-        socket.on('user left', (nickname) => {
-            showNotice(`${nickname}${getParticleEun_Neun(nickname)} 이제 집에 간대요.`);
-        });
+        socket.on('user joined', (nickname) => { showNotice(`${nickname}이(가) 불러왔어요!`); });
+        socket.on('user left', (nickname) => { showNotice(`${nickname}은(는) 이제 집에 간대요.`); });
 
         const badWords = ["씨발", "시발", "ㅆㅂ", "ㅅㅂ", "개새끼", "개새", "ㄱㅅㄲ", "개자식", "병신", "ㅂㅅ", "등신", "쪼다", "찐따", "미친", "지랄", "ㅈㄹ", "좆", "ㅈㄴ", "존나", "닥쳐", "새끼", "관종"]; 
         function filterProfanity(text) {
@@ -426,7 +400,6 @@
 
         let chatTimestamps = [];
         let isChatBanned = false;
-
         function checkSpam() {
             const now = Date.now();
             chatTimestamps.push(now);
@@ -457,6 +430,11 @@
             chatBubble.style.width = calculatedSize + 'px';
             chatBubble.style.height = calculatedSize + 'px';
 
+            // 🌟 텍스트 비눗방울 생성 시 크기에 맞춰 해상도(steps) 조절
+            let steps = Math.floor(calculatedSize / 6);
+            if (steps % 2 !== 0) steps++;
+            chatBubble.style.setProperty('--bubble-polygon', getPixelCirclePolygon(steps));
+
             const nicknameSpan = document.createElement('span');
             nicknameSpan.classList.add('bubble-nickname');
             nicknameSpan.innerText = `[${nickname}]`;
@@ -474,49 +452,29 @@
             chatBubble.style.animation = `blowAway ${longerTime}s linear forwards`; 
 
             gameArea.appendChild(chatBubble);
-
             setTimeout(() => { chatBubble.remove(); }, longerTime * 1000);
         }
 
         function sendMessage() {
             if (isChatBanned || chatInput.value.trim() === '') return; 
-
             if (checkSpam()) {
-                isChatBanned = true;
-                chatInput.disabled = true; 
-                sendBtn.disabled = true;
-                chatInput.placeholder = "도배 금지! 20초 쿨타임.";
-                chatInput.value = '';
+                isChatBanned = true; chatInput.disabled = true; sendBtn.disabled = true;
+                chatInput.placeholder = "도배 금지! 20초 쿨타임."; chatInput.value = '';
                 setTimeout(() => {
-                    isChatBanned = false;
-                    chatInput.disabled = false;
-                    sendBtn.disabled = false;
-                    chatInput.placeholder = "최대 20자 입력가능!";
-                    chatTimestamps = []; 
-                    chatInput.focus();
+                    isChatBanned = false; chatInput.disabled = false; sendBtn.disabled = false;
+                    chatInput.placeholder = "최대 20자 입력가능!"; chatTimestamps = []; chatInput.focus();
                 }, 20000);
                 return; 
             }
-
             const rawMessage = chatInput.value;
             const filteredMessage = filterProfanity(rawMessage);
-            
-            socket.emit('chat message', {
-                nickname: myNickname,
-                message: filteredMessage
-            });
-
+            socket.emit('chat message', { nickname: myNickname, message: filteredMessage });
             createChatBubble(myNickname, filteredMessage);
             appendToChatLog(myNickname, filteredMessage);
-            
-            chatInput.value = '';
-            chatInput.focus();
+            chatInput.value = ''; chatInput.focus();
         }
 
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
-
+        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
         sendBtn.addEventListener('click', sendMessage);
 
         socket.on('chat message', (data) => {
@@ -530,13 +488,28 @@
             
             isBlowing = true; bubbleSize = 20;
             wand.style.display = 'block'; wand.style.left = e.clientX + 'px'; wand.style.top = e.clientY + 'px';
+            
+            // 🌟 막대기 기본 16스텝 적용
+            wand.style.setProperty('--bubble-polygon', getPixelCirclePolygon(16));
+
             currentBubble = document.createElement('div'); currentBubble.classList.add('bubble');
             currentBubble.style.left = e.clientX + 'px'; currentBubble.style.top = e.clientY + 'px';
             currentBubble.style.bottom = 'auto';
             currentBubble.style.animation = 'none'; gameArea.appendChild(currentBubble);
             
             growInterval = setInterval(() => {
-                if (bubbleSize < 600) { bubbleSize += 5; currentBubble.style.width = bubbleSize + 'px'; currentBubble.style.height = bubbleSize + 'px'; }
+                if (bubbleSize < 600) { 
+                    bubbleSize += 5; 
+                    currentBubble.style.width = bubbleSize + 'px'; 
+                    currentBubble.style.height = bubbleSize + 'px'; 
+                    
+                    // 🌟 동적으로 비눗방울이 커질수록 계단 수(해상도)를 늘려서 픽셀 아트 유지!
+                    let steps = Math.floor(bubbleSize / 6); // 1칸당 6px 두께 유지
+                    if (steps < 16) steps = 16;
+                    if (steps > 64) steps = 64; // 너무 무거워지지 않게 64각까지만
+                    if (steps % 2 !== 0) steps++; // 대칭을 위해 짝수로 맞춤
+                    currentBubble.style.setProperty('--bubble-polygon', getPixelCirclePolygon(steps));
+                }
             }, 30);
         });
 
