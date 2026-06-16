@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>픽셀 비눗방울 톡</title>
+    <title>온라인 비눗방울 불기</title>
     <style>
         @font-face {
             font-family: 'DungGeunMo';
@@ -148,21 +148,23 @@
         }
         
         /* =========================================================
-           🌟 [변경] 비눗방울 디자인 전면 개편 
+           🌟 [변경] 비눗방울 디자인 전면 개편 (무지개 테두리 + 하얀색 불투명 배경)
            ========================================================= */
         .bubble { 
             position: absolute; 
-            /* 불투명한 하얀색 배경으로 글씨 가독성 확보 */
-            background-color: #ffffff; 
             
-            /* 마인크래프트 비눗방울처럼 알록달록한 파스텔 테두리를 내부 그림자로 구현 */
-            box-shadow: 
-                inset 0 8px 0 rgba(255, 179, 186, 0.9),   /* 상단: 핑크 */
-                inset -8px 0 0 rgba(186, 255, 201, 0.9),  /* 우측: 민트 */
-                inset 0 -8px 0 rgba(186, 225, 255, 0.9),  /* 하단: 하늘색 */
-                inset 8px 0 0 rgba(223, 186, 255, 0.9);   /* 좌측: 연보라 */
+            /* 1. 알록달록한 무지개 테두리를 위한 둥근 배경색 배치 */
+            background: conic-gradient(
+                from 0deg,
+                #ffb3ba, /* 핑크 */
+                #e0c3fc, /* 연보라 */
+                #bae1ff, /* 하늘색 */
+                #baffc9, /* 민트색 */
+                #ffdfba, /* 연노랑 */
+                #ffb3ba  /* 핑크 (자연스럽게 이어지도록) */
+            );
             
-            /* 기존 16각형에서 20각형으로 늘려 훨씬 둥글둥글한 픽셀 원형 구현 */
+            /* 더 부드러운 원형을 위한 20각형 픽셀 테두리 */
             clip-path: polygon(
                 30% 0%, 70% 0%, 
                 80% 5%, 90% 10%, 95% 20%, 
@@ -176,9 +178,39 @@
             
             transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; 
         }
+
+        /* 2. 비눗방울 안쪽을 완벽한 불투명 하얀색으로 채우는 가상 요소 */
+        .bubble::before {
+            content: '';
+            position: absolute;
+            /* 테두리 두께 조절 (6px 두께의 무지개 테두리가 생깁니다) */
+            top: 6px; left: 6px; right: 6px; bottom: 6px; 
+            background-color: #ffffff; /* 가독성을 위한 불투명 하얀색 */
+            
+            /* 바깥쪽과 동일한 픽셀 원형 모양을 유지합니다 */
+            clip-path: polygon(
+                30% 0%, 70% 0%, 
+                80% 5%, 90% 10%, 95% 20%, 
+                100% 30%, 100% 70%, 
+                95% 80%, 90% 90%, 80% 95%, 
+                70% 100%, 30% 100%, 
+                20% 95%, 10% 90%, 5% 80%, 
+                0% 70%, 0% 30%, 
+                5% 20%, 10% 10%, 20% 5%
+            );
+            z-index: 0;
+        }
         
-        .bubble-nickname { font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffffff; padding: 3px 4px; border: 1px solid rgba(100, 180, 230, 0.8); font-weight: normal; }
-        .bubble-text { color: #000; font-size: 1rem; text-align: center; padding: 0 10px; word-break: break-all; text-shadow: none; font-weight: normal; }
+        .bubble-nickname { 
+            font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffffff; padding: 3px 4px; 
+            border: 1px solid rgba(100, 180, 230, 0.8); font-weight: normal; 
+            position: relative; z-index: 1; /* 🌟 텍스트를 하얀 배경 위로 끌어올림 */
+        }
+        .bubble-text { 
+            color: #000; font-size: 1rem; text-align: center; padding: 0 10px; word-break: break-all; 
+            text-shadow: none; font-weight: normal; 
+            position: relative; z-index: 1; /* 🌟 텍스트를 하얀 배경 위로 끌어올림 */
+        }
         
         @keyframes blowAway {
             0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
@@ -220,7 +252,7 @@
                 <option value="bg-rooftop">옥상</option>
                 <option value="bg-school">학교</option>
                 <option value="bg-park">공원</option>
-                <option value="bg-night">밤거리</option>
+                <option value="bg-night">밤 시골길</option>
             </select>
             <select id="windSelect">
                 <option value="clear">맑음</option>
@@ -235,6 +267,7 @@
         <button id="donateToggleBtn" class="board-toggle-btn" style="text-align: center;">🍀🍀🍀</button>
     </div>
 
+    <!-- 방명록 팝업 -->
     <div id="boardPopup" class="board-popup">
         <div class="board-header">
             <span class="board-title">🫧다녀간 흔적을 남겨요 </span>
@@ -245,9 +278,11 @@
             <button id="boardSubmitBtn" class="board-submit">작성</button>
         </div>
         <div id="boardList" class="board-list">
-            </div>
+            <!-- 서버 목록이 표시됩니다 -->
+        </div>
     </div>
     
+    <!-- 후원 QR 팝업 -->
     <div id="donatePopup" class="board-popup donate-popup" style="height: auto; max-width: 300px;">
         <div class="board-header">
             <span class="board-title">🍀 마음 전하기</span>
