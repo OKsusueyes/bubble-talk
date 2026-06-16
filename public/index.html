@@ -7,11 +7,10 @@
 
     <meta property="og:title" content="온라인 비눗방울 톡!🫧">
     <meta property="og:description" content="나만의 픽셀 비눗방울을 불고 다녀간 흔적을 남겨보세요!">
+    <meta property="og:image" content="https://bubble-talk.onrender.com/썸네일.png"> 
     
-    <meta property="og:image" content="https://https://bubble-talk.onrender.com//썸네일.png"> 
     <style>
-        /* ... (위에는 홈페이지 전송 썸네일 제작용, 아래부터는 기존 홈페이지 스타일 코드 시작) ... */
-    <style>
+        /* 🌟 기존 홈페이지 스타일 코드 시작 */
         @font-face {
             font-family: 'DungGeunMo';
             src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff') format('woff');
@@ -305,7 +304,6 @@
         const donatePopup = document.getElementById('donatePopup');
         const donateCloseBtn = document.getElementById('donateCloseBtn');
 
-        // 🌟 공지사항 관련 JS 요소 가져오기
         const noticeToggleBtn = document.getElementById('noticeToggleBtn');
         const noticePopup = document.getElementById('noticePopup');
         const noticeCloseBtn = document.getElementById('noticeCloseBtn');
@@ -362,7 +360,6 @@
         donateToggleBtn.addEventListener('click', () => { donatePopup.style.display = 'flex'; });
         donateCloseBtn.addEventListener('click', () => { donatePopup.style.display = 'none'; });
 
-        // 🌟 공지사항 열기/닫기 로직
         noticeToggleBtn.addEventListener('click', () => { noticePopup.style.display = 'flex'; });
         noticeCloseBtn.addEventListener('click', () => { noticePopup.style.display = 'none'; });
 
@@ -370,14 +367,12 @@
             if (e.key === 'Escape') {
                 boardPopup.style.display = 'none';
                 donatePopup.style.display = 'none';
-                noticePopup.style.display = 'none'; // ESC 누르면 공지도 닫힘
+                noticePopup.style.display = 'none'; 
             }
         });
 
-        // 🌟 서버에서 공지사항 내용 받아오기
         socket.on('load notice', (noticeText) => {
             let container = document.getElementById('noticeContent');
-            // 만약 현재 수정 중(textarea)이었다면 다시 일반 글씨(div)로 되돌림
             if (container.tagName === 'TEXTAREA') {
                 container.outerHTML = `<div id="noticeContent" style="padding: 8px; font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; line-height: 1.5; white-space: pre-wrap; flex: 1; overflow-y: auto; color: #333; border: 2px solid #000; background: #fafafa; margin-bottom: 5px;"></div>`;
                 noticeEditBtn.innerText = "✏️ 수정 (주인장 전용)";
@@ -385,28 +380,23 @@
             document.getElementById('noticeContent').innerText = noticeText;
         });
 
-        // 🌟 비밀번호 틀렸을 때 알림
         socket.on('notice error', () => {
             alert("비밀번호가 틀렸습니다! 주인장이 아니신가요? 👀");
         });
 
-        // 🌟 주인장 수정 버튼 기능 로직
         let adminPwdTemp = "";
         noticeEditBtn.addEventListener('click', () => {
             const container = document.getElementById('noticeContent');
             
             if (container.tagName === 'DIV') {
-                // 수정 모드 진입
                 const pwd = prompt("주인장 비밀번호를 입력하세요:");
                 if (pwd) {
-                    adminPwdTemp = pwd; // 임시로 비밀번호 저장
+                    adminPwdTemp = pwd; 
                     const currentText = container.innerText;
-                    // 입력 가능한 텍스트 박스로 교체
                     container.outerHTML = `<textarea id="noticeContent" class="board-input" style="flex: 1; resize: none; margin-bottom: 5px; height: 150px;">${currentText}</textarea>`;
                     noticeEditBtn.innerText = "💾 저장하기";
                 }
             } else {
-                // 저장 요청
                 const newText = container.value;
                 socket.emit('update notice', { password: adminPwdTemp, notice: newText });
             }
@@ -555,7 +545,6 @@
 
         let isBlowing = false, currentBubble = null, bubbleSize = 20, growInterval = null, currentStyleElem = null;
         
-        // 🌟 클릭 무시 리스트를 변수로 깔끔하게 정리했습니다.
         gameArea.addEventListener('mousedown', (e) => {
             const ignoreElements = [locationSelect, windSelect, chatInput, sendBtn, boardToggleBtn, donateToggleBtn, noticeToggleBtn];
             if(e.target.tagName === 'A' || ignoreElements.includes(e.target) || chatLog.contains(e.target) || boardPopup.contains(e.target) || donatePopup.contains(e.target) || noticePopup.contains(e.target)) return;
