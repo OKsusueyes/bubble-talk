@@ -12,7 +12,6 @@
             font-style: normal;
         }
 
-        /* 🌟 전역 픽셀 변수 유지 */
         :root {
             --bubble-polygon: polygon(
                 31.25% 0%, 68.75% 0%, 68.75% 6.25%, 81.25% 6.25%, 81.25% 18.75%, 93.75% 18.75%, 
@@ -24,20 +23,14 @@
             );
         }
 
-        /* 🌟 배경 전환 최적화: color transition 삭제, image transition만 남김 */
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; 
             font-family: 'DungGeunMo', sans-serif; 
-            
-            background-size: cover; 
-            background-position: center; 
-            background-repeat: no-repeat;
-            background-color: #000; /* 이미지 로딩 전 기본 밑바탕색 (깜빡임 방지용 검은색) */
-            
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            background-color: #000; 
             transition: background-image 0.8s ease-in-out; 
         }
         
-        /* 🌟 불필요한 색상(background-color) 싹 제거, 순수 이미지만 연결 */
         .bg-playground { background-image: url('놀이터.png'); }
         .bg-rooftop { background-image: url('옥상.png'); }
         .bg-school { background-image: url('학교.png'); }
@@ -50,12 +43,6 @@
             padding: 8px; font-size: 1rem; font-family: 'DungGeunMo', sans-serif;
             border: 3px solid #000; border-radius: 0; outline: none; 
             background: #fff; box-shadow: 4px 4px 0px rgba(0,0,0,0.3); cursor: pointer;
-        }
-        
-        .instruction-text {
-            font-size: 0.85rem; color: #000; background: #fff; border: 2px solid #000; 
-            padding: 6px 10px; width: max-content; box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
-            text-align: left; line-height: 1.4;
         }
 
         .update-notice {
@@ -174,7 +161,7 @@
         .bubble::before {
             content: ''; position: absolute;
             top: 6px; left: 6px; right: 6px; bottom: 6px; 
-            background-color: #ffffff; 
+            background: rgba(255, 255, 255, 0.6);  
             clip-path: var(--bubble-polygon); 
             z-index: 0; 
         }
@@ -200,7 +187,7 @@
 
         @media (max-width: 768px) {
             select { font-size: 0.85rem; padding: 6px; }
-            .instruction-text, .update-notice, .board-toggle-btn { font-size: 0.75rem; padding: 5px 8px; }
+            .update-notice, .board-toggle-btn { font-size: 0.75rem; padding: 5px 8px; }
             .chat-log { height: 110px; bottom: 100px; padding: 6px 8px; }
             .chat-container { bottom: 30px; }
             .log-item { font-size: 0.75rem; }
@@ -235,10 +222,22 @@
                 <option value="typhoon">태풍</option>
             </select>
         </div>
-        <div class="instruction-text">꾹 누르면 나만의 비눗방울을 불 수 있어요!<br>대왕 비눗방울을 불어보세요!😗💨🫧</div>
+        
+        <button id="noticeToggleBtn" class="board-toggle-btn">📢Notice</button>
         <a href="https://app.notion.com/p/380e249edb9380e3bb2bde997219b8ae?source=copy_link" target="_blank" class="update-notice">💡Update Notes</a>
         <button id="boardToggleBtn" class="board-toggle-btn">📝발자국 남기기</button>
         <button id="donateToggleBtn" class="board-toggle-btn" style="text-align: center;">🍀🍀🍀</button>
+    </div>
+
+    <div id="noticePopup" class="board-popup donate-popup" style="height: auto; max-height: 400px;">
+        <div class="board-header">
+            <span class="board-title">📢 주인장 공지사항</span>
+            <button id="noticeCloseBtn" class="board-close">X</button>
+        </div>
+        <div id="noticeContent" style="padding: 8px; font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; line-height: 1.5; white-space: pre-wrap; flex: 1; overflow-y: auto; color: #333; border: 2px solid #000; background: #fafafa; margin-bottom: 5px;">
+            공지사항을 불러오는 중...
+        </div>
+        <button id="noticeEditBtn" class="board-submit" style="align-self: flex-end; font-size: 0.75rem; padding: 4px 8px;">✏️ 수정 (주인장 전용)</button>
     </div>
 
     <div id="boardPopup" class="board-popup">
@@ -299,6 +298,13 @@
         const donatePopup = document.getElementById('donatePopup');
         const donateCloseBtn = document.getElementById('donateCloseBtn');
 
+        // 🌟 공지사항 관련 JS 요소 가져오기
+        const noticeToggleBtn = document.getElementById('noticeToggleBtn');
+        const noticePopup = document.getElementById('noticePopup');
+        const noticeCloseBtn = document.getElementById('noticeCloseBtn');
+        const noticeContent = document.getElementById('noticeContent');
+        const noticeEditBtn = document.getElementById('noticeEditBtn');
+
         const adjectives = ["귀여운", "멋진", "행복한", "졸린", "씩씩한", "신비한", "엉뚱한", "다정한", "배고픈", "배부른", "깜찍한", "맹한", "노래하는", "신비한"];
         const nouns = ["강아지", "고양이", "거북이", "토끼", "다람쥐", "너구리", "펭귄", "참새", "자라", "카멜레온", "병아리", "햄스터", "기니피그"];
         const myNickname = adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
@@ -309,7 +315,6 @@
             const add = (x, y) => points.push(`${(50 + (x/r)*50).toFixed(2)}% ${(50 + (y/r)*50).toFixed(2)}%`);
             let w = [];
             for(let y = 0; y <= r; y++) { w[y] = Math.round(Math.sqrt(r*r - y*y)); }
-            
             for(let y = r; y >= 1; y--) { add(w[y], -y); add(w[y-1], -y); }
             for(let y = 0; y <= r-1; y++) { add(w[y], y+1); add(w[y+1], y+1); }
             for(let y = r; y >= 1; y--) { add(-w[y-1], y); add(-w[y-1], y-1); }
@@ -319,41 +324,28 @@
 
         function getPixelDonutPolygon(steps, thicknessRatio) {
             const r = Math.max(1, Math.floor(steps / 2));
-            const outer = [];
-            const inner = [];
-            
+            const outer = []; const inner = [];
             const addOuter = (x, y) => outer.push(`${(50 + (x/r)*50).toFixed(2)}% ${(50 + (y/r)*50).toFixed(2)}%`);
-            let w = [];
-            for(let y = 0; y <= r; y++) { w[y] = Math.round(Math.sqrt(r*r - y*y)); }
-            
+            let w = []; for(let y = 0; y <= r; y++) { w[y] = Math.round(Math.sqrt(r*r - y*y)); }
             for(let y = r; y >= 1; y--) { addOuter(w[y], -y); addOuter(w[y-1], -y); }
             for(let y = 0; y <= r-1; y++) { addOuter(w[y], y+1); addOuter(w[y+1], y+1); }
             for(let y = r; y >= 1; y--) { addOuter(-w[y-1], y); addOuter(-w[y-1], y-1); }
             for(let y = 0; y <= r-1; y++) { addOuter(-w[y], -(y+1)); addOuter(-w[y+1], -(y+1)); }
             
             const ir = Math.max(1, r - thicknessRatio);
-            let iw = [];
-            for(let y = 0; y <= ir; y++) { iw[y] = Math.round(Math.sqrt(ir*ir - y*y)); }
-            
+            let iw = []; for(let y = 0; y <= ir; y++) { iw[y] = Math.round(Math.sqrt(ir*ir - y*y)); }
             const addInner = (x, y) => inner.push(`${(50 + (x/r)*50).toFixed(2)}% ${(50 + (y/r)*50).toFixed(2)}%`);
-            
             for(let y = ir-1; y >= 0; y--) { addInner(-iw[y+1], -(y+1)); addInner(-iw[y], -(y+1)); }
             for(let y = 1; y <= ir; y++) { addInner(-iw[y-1], y-1); addInner(-iw[y-1], y); }
             for(let y = ir-1; y >= 0; y--) { addInner(iw[y+1], y+1); addInner(iw[y], y+1); }
             for(let y = 1; y <= ir; y++) { addInner(iw[y-1], -y); addInner(iw[y], -y); }
-
             return `polygon(${outer.join(', ')}, ${inner[0]}, ${inner.join(', ')}, ${inner[inner.length-1]}, ${outer[0]})`;
         }
 
         wandRing.style.clipPath = getPixelDonutPolygon(16, 3);
 
         locationSelect.addEventListener('change', (e) => { gameArea.className = e.target.value; });
-        const windSettings = {
-            clear:   { x: 0,   y: '-350px', time: 5.0 },    
-            breeze:  { x: 80,  y: '-300px', time: 4.0 },    
-            cool:    { x: 150, y: '-400px', time: 1.8 },  
-            typhoon: { x: 500, y: '-500px', time: 0.6 }   
-        };
+        const windSettings = { clear: { x: 0, y: '-350px', time: 5.0 }, breeze: { x: 80, y: '-300px', time: 4.0 }, cool: { x: 150, y: '-400px', time: 1.8 }, typhoon: { x: 500, y: '-500px', time: 0.6 } };
         let currentWind = windSettings.clear;
         windSelect.addEventListener('change', (e) => { currentWind = windSettings[e.target.value]; });
 
@@ -363,17 +355,59 @@
         donateToggleBtn.addEventListener('click', () => { donatePopup.style.display = 'flex'; });
         donateCloseBtn.addEventListener('click', () => { donatePopup.style.display = 'none'; });
 
+        // 🌟 공지사항 열기/닫기 로직
+        noticeToggleBtn.addEventListener('click', () => { noticePopup.style.display = 'flex'; });
+        noticeCloseBtn.addEventListener('click', () => { noticePopup.style.display = 'none'; });
+
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 boardPopup.style.display = 'none';
                 donatePopup.style.display = 'none';
+                noticePopup.style.display = 'none'; // ESC 누르면 공지도 닫힘
+            }
+        });
+
+        // 🌟 서버에서 공지사항 내용 받아오기
+        socket.on('load notice', (noticeText) => {
+            let container = document.getElementById('noticeContent');
+            // 만약 현재 수정 중(textarea)이었다면 다시 일반 글씨(div)로 되돌림
+            if (container.tagName === 'TEXTAREA') {
+                container.outerHTML = `<div id="noticeContent" style="padding: 8px; font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; line-height: 1.5; white-space: pre-wrap; flex: 1; overflow-y: auto; color: #333; border: 2px solid #000; background: #fafafa; margin-bottom: 5px;"></div>`;
+                noticeEditBtn.innerText = "✏️ 수정 (주인장 전용)";
+            }
+            document.getElementById('noticeContent').innerText = noticeText;
+        });
+
+        // 🌟 비밀번호 틀렸을 때 알림
+        socket.on('notice error', () => {
+            alert("비밀번호가 틀렸습니다! 주인장이 아니신가요? 👀");
+        });
+
+        // 🌟 주인장 수정 버튼 기능 로직
+        let adminPwdTemp = "";
+        noticeEditBtn.addEventListener('click', () => {
+            const container = document.getElementById('noticeContent');
+            
+            if (container.tagName === 'DIV') {
+                // 수정 모드 진입
+                const pwd = prompt("주인장 비밀번호를 입력하세요:");
+                if (pwd) {
+                    adminPwdTemp = pwd; // 임시로 비밀번호 저장
+                    const currentText = container.innerText;
+                    // 입력 가능한 텍스트 박스로 교체
+                    container.outerHTML = `<textarea id="noticeContent" class="board-input" style="flex: 1; resize: none; margin-bottom: 5px; height: 150px;">${currentText}</textarea>`;
+                    noticeEditBtn.innerText = "💾 저장하기";
+                }
+            } else {
+                // 저장 요청
+                const newText = container.value;
+                socket.emit('update notice', { password: adminPwdTemp, notice: newText });
             }
         });
 
         boardSubmitBtn.addEventListener('click', () => {
             const text = boardInput.value.trim();
             if(text === '') return;
-            
             socket.emit('save board message', { nickname: myNickname, message: text });
             boardInput.value = '';
         });
@@ -513,8 +547,11 @@
         });
 
         let isBlowing = false, currentBubble = null, bubbleSize = 20, growInterval = null, currentStyleElem = null;
+        
+        // 🌟 클릭 무시 리스트를 변수로 깔끔하게 정리했습니다.
         gameArea.addEventListener('mousedown', (e) => {
-            if(e.target.tagName === 'A' || e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target) || boardPopup.contains(e.target) || e.target === boardToggleBtn || donatePopup.contains(e.target) || e.target === donateToggleBtn) return;
+            const ignoreElements = [locationSelect, windSelect, chatInput, sendBtn, boardToggleBtn, donateToggleBtn, noticeToggleBtn];
+            if(e.target.tagName === 'A' || ignoreElements.includes(e.target) || chatLog.contains(e.target) || boardPopup.contains(e.target) || donatePopup.contains(e.target) || noticePopup.contains(e.target)) return;
             
             isBlowing = true; bubbleSize = 20;
             wandContainer.style.display = 'block'; wandContainer.style.left = e.clientX + 'px'; wandContainer.style.top = e.clientY + 'px';
@@ -570,7 +607,9 @@
         });
         
         gameArea.addEventListener('touchstart', (e) => {
-            if(e.target.tagName === 'A' || e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target) || boardPopup.contains(e.target) || e.target === boardToggleBtn || donatePopup.contains(e.target) || e.target === donateToggleBtn) return;
+            const ignoreElements = [locationSelect, windSelect, chatInput, sendBtn, boardToggleBtn, donateToggleBtn, noticeToggleBtn];
+            if(e.target.tagName === 'A' || ignoreElements.includes(e.target) || chatLog.contains(e.target) || boardPopup.contains(e.target) || donatePopup.contains(e.target) || noticePopup.contains(e.target)) return;
+            
             const touch = e.touches[0];
             const mouseEvent = new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY });
             gameArea.dispatchEvent(mouseEvent);
