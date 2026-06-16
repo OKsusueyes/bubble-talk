@@ -59,7 +59,6 @@
         }
         .board-toggle-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,0.3); }
 
-        /* 🌟 부드럽게 나타나는 애니메이션 추가 */
         @keyframes smoothAppear {
             from { opacity: 0; transform: translate(-50%, -48%); }
             to { opacity: 1; transform: translate(-50%, -50%); }
@@ -71,7 +70,6 @@
             box-shadow: 6px 6px 0px rgba(0,0,0,0.3); z-index: 100; padding: 15px; box-sizing: border-box;
             flex-direction: column; gap: 10px;
         }
-        /* 🌟 후원 팝업창 전용 애니메이션 클래스 */
         .donate-popup { animation: smoothAppear 0.4s ease-out forwards; }
 
         .board-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 5px; }
@@ -149,34 +147,38 @@
             width: 6px; height: 40px; background-color: #63B8FF; border: none; 
         }
         
+        /* =========================================================
+           🌟 [변경] 비눗방울 디자인 전면 개편 
+           ========================================================= */
         .bubble { 
             position: absolute; 
-            background-color: rgba(135, 206, 235, 0.4); 
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)),
-                linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)),
-                linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8));
-            background-size: 15% 15%, 15% 15%, 15% 15%; 
-            background-position: 15% 15%, 30% 15%, 15% 30%; background-repeat: no-repeat;
+            /* 불투명한 하얀색 배경으로 글씨 가독성 확보 */
+            background-color: #ffffff; 
             
-            box-shadow: inset 0 0 0 4px rgba(100, 180, 230, 0.8), inset -6px -6px 0px rgba(100, 180, 230, 0.5); 
+            /* 마인크래프트 비눗방울처럼 알록달록한 파스텔 테두리를 내부 그림자로 구현 */
+            box-shadow: 
+                inset 0 8px 0 rgba(255, 179, 186, 0.9),   /* 상단: 핑크 */
+                inset -8px 0 0 rgba(186, 255, 201, 0.9),  /* 우측: 민트 */
+                inset 0 -8px 0 rgba(186, 225, 255, 0.9),  /* 하단: 하늘색 */
+                inset 8px 0 0 rgba(223, 186, 255, 0.9);   /* 좌측: 연보라 */
             
+            /* 기존 16각형에서 20각형으로 늘려 훨씬 둥글둥글한 픽셀 원형 구현 */
             clip-path: polygon(
                 30% 0%, 70% 0%, 
-                80% 10%, 90% 20%, 
+                80% 5%, 90% 10%, 95% 20%, 
                 100% 30%, 100% 70%, 
-                90% 80%, 80% 90%, 
+                95% 80%, 90% 90%, 80% 95%, 
                 70% 100%, 30% 100%, 
-                20% 90%, 10% 80%, 
+                20% 95%, 10% 90%, 5% 80%, 
                 0% 70%, 0% 30%, 
-                10% 20%, 20% 10%
+                5% 20%, 10% 10%, 20% 5%
             );
             
             transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; 
         }
         
         .bubble-nickname { font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffffff; padding: 3px 4px; border: 1px solid rgba(100, 180, 230, 0.8); font-weight: normal; }
-        .bubble-text { color: #000; font-size: 1rem; text-align: center; padding: 0 10px; word-break: break-all; text-shadow: 1px 1px 0px #fff; font-weight: normal; }
+        .bubble-text { color: #000; font-size: 1rem; text-align: center; padding: 0 10px; word-break: break-all; text-shadow: none; font-weight: normal; }
         
         @keyframes blowAway {
             0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
@@ -218,7 +220,7 @@
                 <option value="bg-rooftop">옥상</option>
                 <option value="bg-school">학교</option>
                 <option value="bg-park">공원</option>
-                <option value="bg-night">밤 시골길</option>
+                <option value="bg-night">밤거리</option>
             </select>
             <select id="windSelect">
                 <option value="clear">맑음</option>
@@ -248,7 +250,7 @@
     
     <div id="donatePopup" class="board-popup donate-popup" style="height: auto; max-width: 300px;">
         <div class="board-header">
-            <span class="board-title">🍀 먹이 나눠주기</span>
+            <span class="board-title">🍀 마음 전하기</span>
             <button id="donateCloseBtn" class="board-close">X</button>
         </div>
         <div style="display: flex; justify-content: center; align-items: center; padding: 10px 0;">
@@ -286,7 +288,6 @@
         const boardSubmitBtn = document.getElementById('boardSubmitBtn');
         const boardList = document.getElementById('boardList');
 
-        // 🌟 후원 팝업 관련 요소 가져오기
         const donateToggleBtn = document.getElementById('donateToggleBtn');
         const donatePopup = document.getElementById('donatePopup');
         const donateCloseBtn = document.getElementById('donateCloseBtn');
@@ -308,11 +309,9 @@
         boardToggleBtn.addEventListener('click', () => { boardPopup.style.display = 'flex'; });
         boardCloseBtn.addEventListener('click', () => { boardPopup.style.display = 'none'; });
 
-        // 🌟 후원 열고 닫기 토글 로직
         donateToggleBtn.addEventListener('click', () => { donatePopup.style.display = 'flex'; });
         donateCloseBtn.addEventListener('click', () => { donatePopup.style.display = 'none'; });
 
-        // 🌟 ESC 키를 누르면 팝업창들 닫기
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 boardPopup.style.display = 'none';
@@ -491,7 +490,6 @@
 
         let isBlowing = false, currentBubble = null, bubbleSize = 20, growInterval = null;
         gameArea.addEventListener('mousedown', (e) => {
-            // 🌟 후원 버튼 및 팝업창 예외 처리 추가
             if(e.target.tagName === 'A' || e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target) || boardPopup.contains(e.target) || e.target === boardToggleBtn || donatePopup.contains(e.target) || e.target === donateToggleBtn) return;
             
             isBlowing = true; bubbleSize = 20;
