@@ -148,69 +148,73 @@
         }
         
         /* =========================================================
-           🌟 [변경] 비눗방울 디자인 전면 개편 (무지개 테두리 + 하얀색 불투명 배경)
+           🌟 [수정] 대각선 없이 90도로만 꺾이는 '진짜 픽셀(비트맵)' 비눗방울 테두리! 
            ========================================================= */
         .bubble { 
             position: absolute; 
             
-            /* 1. 알록달록한 무지개 테두리를 위한 둥근 배경색 배치 */
+            /* 무지개 그라데이션 */
             background: conic-gradient(
                 from 0deg,
-                #ffb3ba, /* 핑크 */
-                #e0c3fc, /* 연보라 */
-                #bae1ff, /* 하늘색 */
-                #baffc9, /* 민트색 */
-                #ffdfba, /* 연노랑 */
-                #ffb3ba  /* 핑크 (자연스럽게 이어지도록) */
+                #ffb3ba, #e0c3fc, #bae1ff, #baffc9, #ffdfba, #ffb3ba
             );
             
-            /* 더 부드러운 원형을 위한 20각형 픽셀 테두리 */
+            /* 🌟 핵심: 대각선 없이 직각으로만 깎아낸 완벽한 16x16 픽셀 그리드 계단식 원형 */
             clip-path: polygon(
                 30% 0%, 70% 0%, 
-                80% 5%, 90% 10%, 95% 20%, 
-                100% 30%, 100% 70%, 
-                95% 80%, 90% 90%, 80% 95%, 
-                70% 100%, 30% 100%, 
-                20% 95%, 10% 90%, 5% 80%, 
-                0% 70%, 0% 30%, 
-                5% 20%, 10% 10%, 20% 5%
+                70% 6.25%, 81.25% 6.25%, 
+                81.25% 18.75%, 93.75% 18.75%, 
+                93.75% 30%, 100% 30%, 
+                100% 70%, 
+                93.75% 70%, 93.75% 81.25%, 
+                81.25% 81.25%, 81.25% 93.75%, 
+                70% 93.75%, 70% 100%, 
+                30% 100%, 
+                30% 93.75%, 18.75% 93.75%, 
+                18.75% 81.25%, 6.25% 81.25%, 
+                6.25% 70%, 0% 70%, 
+                0% 30%, 
+                6.25% 30%, 6.25% 18.75%, 
+                18.75% 18.75%, 18.75% 6.25%, 
+                30% 6.25%
             );
             
             transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; 
         }
 
-        /* 2. 비눗방울 안쪽을 완벽한 불투명 하얀색으로 채우는 가상 요소 */
+        /* 🌟 [수정] 비눗방울 안쪽을 하얗게 채워주는 가상 요소 */
         .bubble::before {
             content: '';
             position: absolute;
-            /* 테두리 두께 조절 (6px 두께의 무지개 테두리가 생깁니다) */
+            /* 테두리 두께 (수치를 늘리면 무지개 테두리가 더 두꺼워집니다) */
             top: 6px; left: 6px; right: 6px; bottom: 6px; 
             background-color: #ffffff; /* 가독성을 위한 불투명 하얀색 */
             
-            /* 바깥쪽과 동일한 픽셀 원형 모양을 유지합니다 */
+            /* 바깥 테두리와 똑같은 계단식 픽셀 도형으로 깎기 */
             clip-path: polygon(
                 30% 0%, 70% 0%, 
-                80% 5%, 90% 10%, 95% 20%, 
-                100% 30%, 100% 70%, 
-                95% 80%, 90% 90%, 80% 95%, 
-                70% 100%, 30% 100%, 
-                20% 95%, 10% 90%, 5% 80%, 
-                0% 70%, 0% 30%, 
-                5% 20%, 10% 10%, 20% 5%
+                70% 6.25%, 81.25% 6.25%, 
+                81.25% 18.75%, 93.75% 18.75%, 
+                93.75% 30%, 100% 30%, 
+                100% 70%, 
+                93.75% 70%, 93.75% 81.25%, 
+                81.25% 81.25%, 81.25% 93.75%, 
+                70% 93.75%, 70% 100%, 
+                30% 100%, 
+                30% 93.75%, 18.75% 93.75%, 
+                18.75% 81.25%, 6.25% 81.25%, 
+                6.25% 70%, 0% 70%, 
+                0% 30%, 
+                6.25% 30%, 6.25% 18.75%, 
+                18.75% 18.75%, 18.75% 6.25%, 
+                30% 6.25%
             );
-            z-index: 0;
+            z-index: 0; /* 텍스트 뒤로 보내기 */
         }
         
-        .bubble-nickname { 
-            font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffffff; padding: 3px 4px; 
-            border: 1px solid rgba(100, 180, 230, 0.8); font-weight: normal; 
-            position: relative; z-index: 1; /* 🌟 텍스트를 하얀 배경 위로 끌어올림 */
-        }
-        .bubble-text { 
-            color: #000; font-size: 1rem; text-align: center; padding: 0 10px; word-break: break-all; 
-            text-shadow: none; font-weight: normal; 
-            position: relative; z-index: 1; /* 🌟 텍스트를 하얀 배경 위로 끌어올림 */
-        }
+        /* z-index를 추가해서 글씨가 하얀 배경 위로 확실히 올라오게 수정 */
+        .bubble-nickname { font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffffff; padding: 3px 4px; border: 1px solid rgba(100, 180, 230, 0.8); font-weight: normal; position: relative; z-index: 1; }
+        .bubble-text { color: #000; font-size: 1rem; text-align: center; padding: 0 10px; word-break: break-all; text-shadow: none; font-weight: normal; position: relative; z-index: 1; }
         
         @keyframes blowAway {
             0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
@@ -252,7 +256,7 @@
                 <option value="bg-rooftop">옥상</option>
                 <option value="bg-school">학교</option>
                 <option value="bg-park">공원</option>
-                <option value="bg-night">밤 시골길</option>
+                <option value="bg-night">밤거리</option>
             </select>
             <select id="windSelect">
                 <option value="clear">맑음</option>
@@ -267,7 +271,6 @@
         <button id="donateToggleBtn" class="board-toggle-btn" style="text-align: center;">🍀🍀🍀</button>
     </div>
 
-    <!-- 방명록 팝업 -->
     <div id="boardPopup" class="board-popup">
         <div class="board-header">
             <span class="board-title">🫧다녀간 흔적을 남겨요 </span>
@@ -278,11 +281,9 @@
             <button id="boardSubmitBtn" class="board-submit">작성</button>
         </div>
         <div id="boardList" class="board-list">
-            <!-- 서버 목록이 표시됩니다 -->
-        </div>
+            </div>
     </div>
     
-    <!-- 후원 QR 팝업 -->
     <div id="donatePopup" class="board-popup donate-popup" style="height: auto; max-width: 300px;">
         <div class="board-header">
             <span class="board-title">🍀 마음 전하기</span>
