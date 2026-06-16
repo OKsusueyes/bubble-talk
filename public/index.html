@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>온라인 비눗방울 불기</title>
+    <title>비눗방울 톡!</title>
     <style>
         @font-face {
             font-family: 'DungGeunMo';
@@ -22,8 +22,8 @@
             background-position: center; 
             background-repeat: no-repeat;
             
-            /* 🌟 배경 이미지와 색상이 0.8초 동안 스르륵 바뀌도록 설정 */
-            transition: background-image 0.8s ease-in-out, background-color 0.8s ease-in-out; 
+            /* 🌟 배경 이미지와 색상이 자연스럽게 바뀌도록 설정 */
+            transition: background-image 0.5s ease-in-out, background-color 0.2s ease-in-out; 
         }
         
         /* 2. 각 장소별 배경 이미지 주소(url) 연결 */
@@ -32,21 +32,8 @@
         .bg-rooftop { background-image: url('옥상.png'); }
         .bg-school { background-image: url('학교.png'); }
         .bg-park { background-image: url('공원.png'); }
-        
-        .bg-night {
-            /* 🌟 밤 시골길은 기존의 예쁜 '픽셀 별빛 그리드' 감성을 유지하면서 밑에 이미지를 깔 수 있게 합쳐두었습니다! */
-            background-color: #0b101e;
-            background-image: 
-                linear-gradient(white 2px, transparent 2px),
-                linear-gradient(90deg, white 2px, transparent 2px),
-                linear-gradient(rgba(255,255,255,0.5) 2px, transparent 2px),
-                linear-gradient(90deg, rgba(255,255,255,0.5) 2px, transparent 2px),
-                url('밤 시골길.png'); /* 여기에 밤 시골길 이미지 이름 입력! */
-            background-size: 150px 150px, 150px 150px, 80px 80px, 80px 80px, cover;
-            background-position: 10px 10px, 10px 10px, 40px 40px, 40px 40px, center;
-            color: white;
-        }
-    
+        .bg-night { background-image: url('밤 시골길.png'); }
+                       
         .ui-container { position: absolute; top: 20px; left: 20px; z-index: 10; display: flex; flex-direction: column; gap: 8px; }
         .select-group { display: flex; gap: 10px; }
         select { 
