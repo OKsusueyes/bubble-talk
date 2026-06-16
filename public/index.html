@@ -12,18 +12,6 @@
             font-style: normal;
         }
 
-        /* 🌟 기본 16x16 계단식 픽셀 폴리곤을 전역 변수로 저장 */
-        :root {
-            --bubble-polygon: polygon(
-                31.25% 0%, 68.75% 0%, 68.75% 6.25%, 81.25% 6.25%, 81.25% 18.75%, 93.75% 18.75%, 
-                93.75% 31.25%, 100% 31.25%, 100% 68.75%, 93.75% 68.75%, 93.75% 81.25%, 
-                81.25% 81.25%, 81.25% 93.75%, 68.75% 93.75%, 68.75% 100%, 31.25% 100%, 
-                31.25% 93.75%, 18.75% 93.75%, 18.75% 81.25%, 6.25% 81.25%, 6.25% 68.75%, 
-                0% 68.75%, 0% 31.25%, 6.25% 31.25%, 6.25% 18.75%, 18.75% 18.75%, 
-                18.75% 6.25%, 31.25% 6.25%
-            );
-        }
-
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'DungGeunMo', sans-serif; transition: background-color 0s; }
         
         .bg-playground { background-color: #fce4ec; }
@@ -148,42 +136,35 @@
         }
         #sendBtn:active { transform: translateY(2px); }
         
-        /* 🌟 [변경] 비눗방울 막대기도 완벽한 직각 계단식 픽셀 원형으로 재구성! */
-        #wand { 
-            position: absolute; width: 40px; height: 40px; 
-            background-color: #63B8FF; /* 막대기 파란색 외곽선 */
-            transform: translate(-50%, -50%); display: none; pointer-events: none; z-index: 5; 
-            clip-path: var(--bubble-polygon); /* 비눗방울과 동일한 형태 사용 */
+        /* 🌟 [막대기 복구] 전체 컨테이너와 동그라미 링, 일자 막대기 영역 분리! */
+        #wand-container { 
+            position: absolute; width: 40px; height: 80px; 
+            transform: translate(-50%, -20px); /* 동그라미 중심이 마우스에 오도록 조절 */
+            display: none; pointer-events: none; z-index: 5; 
         }
-        #wand::before {
-            content: ''; position: absolute;
-            top: 4px; left: 4px; right: 4px; bottom: 4px; /* 테두리 4px 남기기 */
-            background: rgba(135, 206, 235, 0.4); /* 안쪽 반투명 뚫린 효과 */
-            clip-path: var(--bubble-polygon);
+        #wand-ring {
+            position: absolute; top: 0; left: 0; width: 40px; height: 40px; 
+            background-color: #63B8FF; /* 막대기 파란색 */
+            /* Javascript에서 속이 뻥 뚫린 직각 도넛 모양(getPixelDonutPolygon)을 동적으로 씌워줍니다! */
         }
-        #wand::after { 
-            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); 
-            width: 6px; height: 40px; background-color: #63B8FF; border: none; 
+        #wand-stick {
+            position: absolute; top: 38px; left: 50%; transform: translateX(-50%);
+            width: 6px; height: 40px; background-color: #63B8FF; border: none;
         }
         
-        /* 🌟 [변경] 진짜 비트맵 직각 계단이 적용되는 무지개 비눗방울 */
+        /* 비트맵 무지개 비눗방울 */
         .bubble { 
             position: absolute; 
             background: conic-gradient(from 0deg, #ffb3ba, #e0c3fc, #bae1ff, #baffc9, #ffdfba, #ffb3ba);
-            
-            /* 변수로 동적 할당되는 직각 픽셀 형태 */
-            clip-path: var(--bubble-polygon);
-            
             transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; 
         }
 
         .bubble::before {
-            content: '';
-            position: absolute;
+            content: ''; position: absolute;
             top: 6px; left: 6px; right: 6px; bottom: 6px; 
-            background-color: #ffffff; /* 가독성 완벽 확보를 위한 하얀 바탕 */
-            clip-path: var(--bubble-polygon); /* 똑같이 계단식으로 자름 */
-            z-index: 0;
+            background-color: #ffffff; /* 텍스트 가독성을 위한 하얀 배경 */
+            z-index: 0; 
+            /* 부모(.bubble)가 커질 때 자바스크립트가 똑같은 모양의 둥근 픽셀 계단으로 안쪽도 같이 잘라줍니다. */
         }
         
         .bubble-nickname { font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffffff; padding: 3px 4px; border: 1px solid rgba(100, 180, 230, 0.8); font-weight: normal; position: relative; z-index: 1; }
@@ -221,7 +202,11 @@
 </head>
 <body class="bg-playground" id="gameArea">
 
-    <div id="wand"></div>
+    <div id="wand-container">
+        <div id="wand-ring"></div>
+        <div id="wand-stick"></div>
+    </div>
+
     <div class="ui-container">
         <div class="select-group">
             <select id="locationSelect">
@@ -253,8 +238,7 @@
             <input type="text" id="boardInput" class="board-input" placeholder="어떻게 남기시겠어요?" maxlength="30">
             <button id="boardSubmitBtn" class="board-submit">작성</button>
         </div>
-        <div id="boardList" class="board-list">
-            </div>
+        <div id="boardList" class="board-list"></div>
     </div>
     
     <div id="donatePopup" class="board-popup donate-popup" style="height: auto; max-width: 300px;">
@@ -288,7 +272,10 @@
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
         const chatLog = document.getElementById('chatLog');
-        const wand = document.getElementById('wand');
+        
+        // 🌟 수정된 막대기 변수
+        const wandContainer = document.getElementById('wand-container');
+        const wandRing = document.getElementById('wand-ring');
 
         const boardToggleBtn = document.getElementById('boardToggleBtn');
         const boardPopup = document.getElementById('boardPopup');
@@ -305,26 +292,53 @@
         const nouns = ["강아지", "고양이", "거북이", "토끼", "다람쥐", "너구리", "펭귄", "참새", "자라", "카멜레온", "병아리", "햄스터", "기니피그"];
         const myNickname = adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
 
-        // 🌟 [추가] 완벽한 90도 직각 계단형 원형 좌표를 크기에 따라 동적으로 생성하는 알고리즘!
+        // 🌟 1. 꽉 찬 픽셀 둥근 테두리를 계산하는 수학 함수
         function getPixelCirclePolygon(steps) {
             const r = Math.max(1, Math.floor(steps / 2));
             const points = [];
-            // 좌표를 퍼센트로 환산하여 배열에 푸시
             const add = (x, y) => points.push(`${(50 + (x/r)*50).toFixed(2)}% ${(50 + (y/r)*50).toFixed(2)}%`);
             let w = [];
             for(let y = 0; y <= r; y++) { w[y] = Math.round(Math.sqrt(r*r - y*y)); }
             
-            // 1사분면 (우측 상단) -> 가로, 세로 계단 그리기
             for(let y = r; y >= 1; y--) { add(w[y], -y); add(w[y-1], -y); }
-            // 2사분면 (우측 하단)
             for(let y = 0; y <= r-1; y++) { add(w[y], y+1); add(w[y+1], y+1); }
-            // 3사분면 (좌측 하단)
             for(let y = r; y >= 1; y--) { add(-w[y-1], y); add(-w[y-1], y-1); }
-            // 4사분면 (좌측 상단)
             for(let y = 0; y <= r-1; y++) { add(-w[y], -(y+1)); add(-w[y+1], -(y+1)); }
-            
             return `polygon(${points.join(', ')})`;
         }
+
+        // 🌟 2. [추가됨] 속이 뻥 뚫린 '도넛 모양' 픽셀 테두리를 그리는 수학 함수 (채우기X 막대기 링 전용)
+        function getPixelDonutPolygon(steps, thicknessRatio) {
+            const r = Math.max(1, Math.floor(steps / 2));
+            const outer = [];
+            const inner = [];
+            
+            const addOuter = (x, y) => outer.push(`${(50 + (x/r)*50).toFixed(2)}% ${(50 + (y/r)*50).toFixed(2)}%`);
+            let w = [];
+            for(let y = 0; y <= r; y++) { w[y] = Math.round(Math.sqrt(r*r - y*y)); }
+            
+            for(let y = r; y >= 1; y--) { addOuter(w[y], -y); addOuter(w[y-1], -y); }
+            for(let y = 0; y <= r-1; y++) { addOuter(w[y], y+1); addOuter(w[y+1], y+1); }
+            for(let y = r; y >= 1; y--) { addOuter(-w[y-1], y); addOuter(-w[y-1], y-1); }
+            for(let y = 0; y <= r-1; y++) { addOuter(-w[y], -(y+1)); addOuter(-w[y+1], -(y+1)); }
+            
+            const ir = Math.max(1, r - thicknessRatio);
+            let iw = [];
+            for(let y = 0; y <= ir; y++) { iw[y] = Math.round(Math.sqrt(ir*ir - y*y)); }
+            
+            const addInner = (x, y) => inner.push(`${(50 + (x/r)*50).toFixed(2)}% ${(50 + (y/r)*50).toFixed(2)}%`);
+            
+            for(let y = ir-1; y >= 0; y--) { addInner(-iw[y+1], -(y+1)); addInner(-iw[y], -(y+1)); }
+            for(let y = 1; y <= ir; y++) { addInner(-iw[y-1], y-1); addInner(-iw[y-1], y); }
+            for(let y = ir-1; y >= 0; y--) { addInner(iw[y+1], y+1); addInner(iw[y], y+1); }
+            for(let y = 1; y <= ir; y++) { addInner(iw[y-1], -y); addInner(iw[y], -y); }
+
+            // 겉과 속을 미세한 틈으로 연결하여 완벽한 구멍 뚫린 도넛(링) 완성!
+            return `polygon(${outer.join(', ')}, ${inner[0]}, ${inner.join(', ')}, ${inner[inner.length-1]}, ${outer[0]})`;
+        }
+
+        // 초기화 시 막대기 링 부분에 도넛 형태 적용 (16계단, 두께비율 3)
+        wandRing.style.clipPath = getPixelDonutPolygon(16, 3);
 
         locationSelect.addEventListener('change', (e) => { gameArea.className = e.target.value; });
         const windSettings = {
@@ -430,10 +444,18 @@
             chatBubble.style.width = calculatedSize + 'px';
             chatBubble.style.height = calculatedSize + 'px';
 
-            // 🌟 텍스트 비눗방울 생성 시 크기에 맞춰 해상도(steps) 조절
+            // 비눗방울이 생성될 때 크기에 맞춰 다이나믹하게 픽셀 쪼개기
             let steps = Math.floor(calculatedSize / 6);
             if (steps % 2 !== 0) steps++;
-            chatBubble.style.setProperty('--bubble-polygon', getPixelCirclePolygon(steps));
+            const dynamicPolygon = getPixelCirclePolygon(steps);
+            chatBubble.style.clipPath = dynamicPolygon;
+
+            // 가상 요소(하얀 배경)를 제어하기 위한 스타일 태그 삽입
+            const styleId = 'style-' + Math.random().toString(36).substr(2, 9);
+            chatBubble.id = styleId;
+            const styleElem = document.createElement('style');
+            styleElem.innerHTML = `#${styleId}::before { clip-path: ${dynamicPolygon}; }`;
+            document.head.appendChild(styleElem);
 
             const nicknameSpan = document.createElement('span');
             nicknameSpan.classList.add('bubble-nickname');
@@ -452,7 +474,10 @@
             chatBubble.style.animation = `blowAway ${longerTime}s linear forwards`; 
 
             gameArea.appendChild(chatBubble);
-            setTimeout(() => { chatBubble.remove(); }, longerTime * 1000);
+            setTimeout(() => { 
+                chatBubble.remove(); 
+                styleElem.remove(); 
+            }, longerTime * 1000);
         }
 
         function sendMessage() {
@@ -482,20 +507,25 @@
             appendToChatLog(data.nickname, data.message);
         });
 
-        let isBlowing = false, currentBubble = null, bubbleSize = 20, growInterval = null;
+        let isBlowing = false, currentBubble = null, bubbleSize = 20, growInterval = null, currentStyleElem = null;
         gameArea.addEventListener('mousedown', (e) => {
             if(e.target.tagName === 'A' || e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target) || boardPopup.contains(e.target) || e.target === boardToggleBtn || donatePopup.contains(e.target) || e.target === donateToggleBtn) return;
             
             isBlowing = true; bubbleSize = 20;
-            wand.style.display = 'block'; wand.style.left = e.clientX + 'px'; wand.style.top = e.clientY + 'px';
+            wandContainer.style.display = 'block'; wandContainer.style.left = e.clientX + 'px'; wandContainer.style.top = e.clientY + 'px';
             
-            // 🌟 막대기 기본 16스텝 적용
-            wand.style.setProperty('--bubble-polygon', getPixelCirclePolygon(16));
-
             currentBubble = document.createElement('div'); currentBubble.classList.add('bubble');
             currentBubble.style.left = e.clientX + 'px'; currentBubble.style.top = e.clientY + 'px';
             currentBubble.style.bottom = 'auto';
-            currentBubble.style.animation = 'none'; gameArea.appendChild(currentBubble);
+            currentBubble.style.animation = 'none'; 
+
+            // 드래그 중인 비눗방울을 위한 고유 ID와 스타일
+            const styleId = 'drag-bubble-' + Math.random().toString(36).substr(2, 9);
+            currentBubble.id = styleId;
+            currentStyleElem = document.createElement('style');
+            document.head.appendChild(currentStyleElem);
+            
+            gameArea.appendChild(currentBubble);
             
             growInterval = setInterval(() => {
                 if (bubbleSize < 600) { 
@@ -503,26 +533,35 @@
                     currentBubble.style.width = bubbleSize + 'px'; 
                     currentBubble.style.height = bubbleSize + 'px'; 
                     
-                    // 🌟 동적으로 비눗방울이 커질수록 계단 수(해상도)를 늘려서 픽셀 아트 유지!
-                    let steps = Math.floor(bubbleSize / 6); // 1칸당 6px 두께 유지
+                    let steps = Math.floor(bubbleSize / 6); 
                     if (steps < 16) steps = 16;
-                    if (steps > 64) steps = 64; // 너무 무거워지지 않게 64각까지만
-                    if (steps % 2 !== 0) steps++; // 대칭을 위해 짝수로 맞춤
-                    currentBubble.style.setProperty('--bubble-polygon', getPixelCirclePolygon(steps));
+                    if (steps > 64) steps = 64; 
+                    if (steps % 2 !== 0) steps++; 
+                    
+                    const dynamicPolygon = getPixelCirclePolygon(steps);
+                    currentBubble.style.clipPath = dynamicPolygon;
+                    currentStyleElem.innerHTML = `#${styleId}::before { clip-path: ${dynamicPolygon}; }`;
                 }
             }, 30);
         });
 
         window.addEventListener('mouseup', () => {
             if (!isBlowing) return;
-            isBlowing = false; clearInterval(growInterval); wand.style.display = 'none';
+            isBlowing = false; clearInterval(growInterval); wandContainer.style.display = 'none';
             if (currentBubble) {
                 currentBubble.style.setProperty('--target-x', currentWind.x + 'px');
                 currentBubble.style.setProperty('--target-y', currentWind.y);
                 const longerTime = currentWind.time * 1.5;
                 currentBubble.style.animation = `blowAway ${longerTime}s linear forwards`;
+                
                 const tempBubble = currentBubble;
-                setTimeout(() => { tempBubble.remove(); }, longerTime * 1000); currentBubble = null;
+                const tempStyle = currentStyleElem;
+                setTimeout(() => { 
+                    tempBubble.remove(); 
+                    tempStyle.remove();
+                }, longerTime * 1000); 
+                currentBubble = null;
+                currentStyleElem = null;
             }
         });
         
