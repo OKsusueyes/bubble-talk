@@ -13,7 +13,7 @@ const MAX_BOARD_MESSAGE = 30;
 
 // 🌟 [새로 추가] 공지사항 저장용 변수 및 주인장 비밀번호 설정
 let currentNotice = "환영합니다!\n이곳은 픽셀 비눗방울 공원입니다. 🫧\n\n- 주인장 백 -";
-const ADMIN_PASSWORD = "admin"; // ⚠️ 여기서 주인장 비밀번호를 설정하세요! (기본값: admin)
+const ADMIN_PASSWORD = "oksusu"; // ⚠️ 여기서 주인장 비밀번호를 설정하세요!
 
 const botReplies = [
     "보글보글... 무슨 일 있어?",
