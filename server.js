@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const http = require('http');
 const { Server } = require("socket.io");
@@ -9,68 +8,72 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
-// 🌟 1. 접속하지 않아도 유지되는 게시판 데이터 저장 배열 (서버 메모리)
 let boardMessages = [];
-const MAX_BOARD_MESSAGE = 10; // 메모리 보호를 위해 최대 30개까지만 저장
+const MAX_BOARD_MESSAGE = 30;
 
-// 🤖 봇이 혼자 있는 유저에게 해줄 귀여운 랜덤 답변 리스트
+// 🌟 [새로 추가] 공지사항 저장용 변수 및 주인장 비밀번호 설정
+let currentNotice = "환영합니다!\n이곳은 픽셀 비눗방울 공원입니다. 🫧\n\n- 주인장 백 -";
+const ADMIN_PASSWORD = "admin"; // ⚠️ 여기서 주인장 비밀번호를 설정하세요! (기본값: admin)
+
 const botReplies = [
     "보글보글... 무슨 일 있어?",
     "하늘 높이 날아가라~ 🫧",
-    "오늘 날씨 너~~무 좋다! 그치?",
+    "오늘 날씨 정말 좋다, 그치?",
     "나랑 같이 비눗방울 불자! 😗💨",
-    "귀여운 이름이네?",
+    "네 닉네임 정말 귀엽다!",
+    "여기는 비밀 비눗방울 공원이야.",
     "홉! 방금 엄청 큰 방울이 터졌어!",
     "심심했는데 말 걸어줘서 고마워!"
+    "후...후..불면은 날아가는...커다란 비눗방울...",
+    "오늘 하루는 어때?",
+    "심심하면 발자국이라도 남겨봐!",
+    "발자국 남겼어?",
+    "비눗방울톡~ 야호~💫✌🏻💖"
 ];
 
 io.on('connection', (socket) => {
     console.log('새로운 사용자가 연결되었습니다!');
 
-    // 🌟 2. 유저가 접속하자마자 서버에 저장되어 있던 게시판 목록을 전송합니다.
     socket.emit('load board', boardMessages);
+    
+    // 🌟 [새로 추가] 접속 시 현재 공지사항을 불러와서 전송
+    socket.emit('load notice', currentNotice); 
 
-    // 사용자가 접속하며 닉네임을 알려주면 서버가 기억합니다.
     socket.on('user connect notification', (nickname) => {
         socket.nickname = nickname; 
         socket.broadcast.emit('user joined', nickname);
     });
 
-    // 채팅 데이터를 받았을 때
     socket.on('chat message', (data) => {
-        // 먼저 다른 사람들에게 메시지를 뿌려줍니다.
         socket.broadcast.emit('chat message', data);
-
-        // 🌟 3. [봇 기능] 만약 현재 전체 접속자 수가 1명(나 혼자)이라면?
         const currentUsersCount = io.engine.clientsCount;
         if (currentUsersCount === 1) {
-            // 사람이 치는 것처럼 자연스럽게 1초(1000ms) 뒤에 봇이 대답합니다.
             setTimeout(() => {
                 const randomReply = botReplies[Math.floor(Math.random() * botReplies.length)];
-                // 나 혼자 있는 화면에 봇의 메시지를 전송합니다.
                 socket.emit('chat message', {
-                    nickname: "익명의 동물친구🐶",
+                    nickname: "🤖 인공지능 봇",
                     message: randomReply
                 });
             }, 1000);
         }
     });
 
-    // 🌟 4. 유저가 게시판에 새 글을 남겼을 때
     socket.on('save board message', (boardData) => {
-        // 새 글을 배열 맨 앞에 추가 (최신글이 위로 오도록)
         boardMessages.unshift(boardData);
-        
-        // 제한 개수를 넘으면 오래된 글 삭제
-        if (boardMessages.length > MAX_BOARD_MESSAGE) {
-            boardMessages.pop();
-        }
-
-        // 현재 접속 중인 모든 사람에게 업데이트된 게시판 데이터를 전송합니다.
+        if (boardMessages.length > MAX_BOARD_MESSAGE) boardMessages.pop();
         io.emit('load board', boardMessages);
     });
 
-    // 사용자가 나갔을 때
+    // 🌟 [새로 추가] 주인장이 공지사항을 수정할 때 검증 및 업데이트
+    socket.on('update notice', (data) => {
+        if (data.password === ADMIN_PASSWORD) {
+            currentNotice = data.notice;
+            io.emit('load notice', currentNotice); // 비밀번호가 맞으면 모든 유저에게 새 공지사항 전송
+        } else {
+            socket.emit('notice error'); // 비밀번호가 틀리면 수정을 요청한 사람에게만 경고 전송
+        }
+    });
+
     socket.on('disconnect', () => {
         if (socket.nickname) {
             socket.broadcast.emit('user left', socket.nickname);
