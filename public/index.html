@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>온라인 비눗방울 불기</title>
+    <title>픽셀 비눗방울 톡</title>
     <style>
         @font-face {
             font-family: 'DungGeunMo';
@@ -59,20 +59,29 @@
         }
         .board-toggle-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,0.3); }
 
+        /* 🌟 부드럽게 나타나는 애니메이션 추가 */
+        @keyframes smoothAppear {
+            from { opacity: 0; transform: translate(-50%, -48%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
         .board-popup {
             display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 90%; max-width: 340px; height: 380px; background: #ffffff; border: 3px solid #000;
             box-shadow: 6px 6px 0px rgba(0,0,0,0.3); z-index: 100; padding: 15px; box-sizing: border-box;
             flex-direction: column; gap: 10px;
         }
+        /* 🌟 후원 팝업창 전용 애니메이션 클래스 */
+        .donate-popup { animation: smoothAppear 0.4s ease-out forwards; }
+
         .board-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 5px; }
         
         .board-title { font-size: 1.1rem; font-weight: normal; color: #000; font-family: 'DungGeunMo', sans-serif; }
-        .board-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; font-family: 'DungGeunMo', sans-serif; }
+        .board-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; font-family: 'DungGeunMo', sans-serif; color: #000; }
         
         .board-write-area { display: flex; gap: 5px; }
-        .board-input { flex: 1; border: 2px solid #000; padding: 6px; font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; outline: none; }
-        .board-submit { border: 2px solid #000; background: #ffffff; padding: 6px 10px; font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; cursor: pointer; box-shadow: 2px 2px 0px #000; }
+        .board-input { flex: 1; border: 2px solid #000; padding: 8px; font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; outline: none; box-sizing: border-box; border-radius: 0; }
+        .board-submit { border: 2px solid #000; background: #ffffff; padding: 6px 10px; font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; cursor: pointer; box-shadow: 2px 2px 0px #000; color: #000; border-radius: 0; }
         .board-submit:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px #000; }
         
         .board-list { flex: 1; border: 2px solid #000; background: #fafafa; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
@@ -166,7 +175,6 @@
             transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; 
         }
         
-        /* 🌟 [변경] 비눗방울 안 닉네임 박스의 위아래 여백을 3px로 늘림 */
         .bubble-nickname { font-size: 0.8rem; color: #000; margin-bottom: 2px; background: #ffffff; padding: 3px 4px; border: 1px solid rgba(100, 180, 230, 0.8); font-weight: normal; }
         .bubble-text { color: #000; font-size: 1rem; text-align: center; padding: 0 10px; word-break: break-all; text-shadow: 1px 1px 0px #fff; font-weight: normal; }
         
@@ -197,13 +205,7 @@
             #sendBtn { font-size: 0.8rem; padding: 8px 12px 8px 5px; }
             .bubble-nickname { font-size: 0.7rem; }
             .bubble-text { font-size: 0.9rem; }
-            /* 1. 닫기 버튼(X): 강제로 파란색이 되는 현상 방지 */
-            .board-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; font-family: 'DungGeunMo', sans-serif; color: #000; }
-            /* 2. 입력창: padding을 8px로 늘려 아래 목록과 시작점을 완벽히 일치시키고, 모바일에서 테두리 둥글어짐 방지 */
-            .board-input { flex: 1; border: 2px solid #000; padding: 8px; font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; outline: none; box-sizing: border-box; border-radius: 0; }
-            /* 3. 작성 버튼: 파란 글씨 방지 및 모바일 테두리 둥글어짐 방지 */
-            .board-submit { border: 2px solid #000; background: #ffffff; padding: 6px 10px; font-family: 'DungGeunMo', sans-serif; font-size: 0.85rem; cursor: pointer; box-shadow: 2px 2px 0px #000; color: #000; border-radius: 0; }
-             }
+        }
     </style>
 </head>
 <body class="bg-playground" id="gameArea">
@@ -228,6 +230,7 @@
         <div class="instruction-text">꾹 누르면 나만의 비눗방울을 불 수 있어요!<br>대왕 비눗방울을 불어보세요!😗💨🫧</div>
         <a href="https://app.notion.com/p/380e249edb9380e3bb2bde997219b8ae?source=copy_link" target="_blank" class="update-notice">💡Update Notes</a>
         <button id="boardToggleBtn" class="board-toggle-btn">📝발자국 남기기</button>
+        <button id="donateToggleBtn" class="board-toggle-btn" style="text-align: center;">🍀🍀🍀</button>
     </div>
 
     <div id="boardPopup" class="board-popup">
@@ -243,6 +246,16 @@
             </div>
     </div>
     
+    <div id="donatePopup" class="board-popup donate-popup" style="height: auto; max-width: 300px;">
+        <div class="board-header">
+            <span class="board-title">🍀 마음 전하기</span>
+            <button id="donateCloseBtn" class="board-close">X</button>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; padding: 10px 0;">
+            <img src="후원 QR.jpg" alt="후원 QR코드" style="max-width: 100%; height: auto; border: 2px solid #000; box-shadow: 4px 4px 0px rgba(0,0,0,0.3);">
+        </div>
+    </div>
+
     <div id="chatLog" class="chat-log"></div>
 
     <div class="chat-container">
@@ -266,6 +279,18 @@
         const chatLog = document.getElementById('chatLog');
         const wand = document.getElementById('wand');
 
+        const boardToggleBtn = document.getElementById('boardToggleBtn');
+        const boardPopup = document.getElementById('boardPopup');
+        const boardCloseBtn = document.getElementById('boardCloseBtn');
+        const boardInput = document.getElementById('boardInput');
+        const boardSubmitBtn = document.getElementById('boardSubmitBtn');
+        const boardList = document.getElementById('boardList');
+
+        // 🌟 후원 팝업 관련 요소 가져오기
+        const donateToggleBtn = document.getElementById('donateToggleBtn');
+        const donatePopup = document.getElementById('donatePopup');
+        const donateCloseBtn = document.getElementById('donateCloseBtn');
+
         const adjectives = ["귀여운", "멋진", "행복한", "졸린", "씩씩한", "신비한", "엉뚱한", "다정한", "배고픈", "배부른", "깜찍한", "맹한", "노래하는", "신비한"];
         const nouns = ["강아지", "고양이", "거북이", "토끼", "다람쥐", "너구리", "펭귄", "참새", "자라", "카멜레온", "병아리", "햄스터", "기니피그"];
         const myNickname = adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
@@ -280,16 +305,25 @@
         let currentWind = windSettings.clear;
         windSelect.addEventListener('change', (e) => { currentWind = windSettings[e.target.value]; });
 
-        // 🌟 게시판 열고 닫기 토글 로직
         boardToggleBtn.addEventListener('click', () => { boardPopup.style.display = 'flex'; });
         boardCloseBtn.addEventListener('click', () => { boardPopup.style.display = 'none'; });
 
-        // 🌟 게시판 글 전송 로직
+        // 🌟 후원 열고 닫기 토글 로직
+        donateToggleBtn.addEventListener('click', () => { donatePopup.style.display = 'flex'; });
+        donateCloseBtn.addEventListener('click', () => { donatePopup.style.display = 'none'; });
+
+        // 🌟 ESC 키를 누르면 팝업창들 닫기
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                boardPopup.style.display = 'none';
+                donatePopup.style.display = 'none';
+            }
+        });
+
         boardSubmitBtn.addEventListener('click', () => {
             const text = boardInput.value.trim();
             if(text === '') return;
             
-            // 서버로 닉네임과 내용을 묶어서 전송
             socket.emit('save board message', {
                 nickname: myNickname,
                 message: text
@@ -297,9 +331,8 @@
             boardInput.value = '';
         });
 
-        // 🌟 서버에서 과거 게시판 데이터를 로드하거나 업데이트 신호가 올 때
         socket.on('load board', (messages) => {
-            boardList.innerHTML = ''; // 초기화
+            boardList.innerHTML = ''; 
             messages.forEach(data => {
                 const item = document.createElement('div');
                 item.classList.add('board-item');
@@ -458,7 +491,8 @@
 
         let isBlowing = false, currentBubble = null, bubbleSize = 20, growInterval = null;
         gameArea.addEventListener('mousedown', (e) => {
-            if(e.target.tagName === 'A' || e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target) || boardPopup.contains(e.target) || e.target === boardToggleBtn) return;
+            // 🌟 후원 버튼 및 팝업창 예외 처리 추가
+            if(e.target.tagName === 'A' || e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target) || boardPopup.contains(e.target) || e.target === boardToggleBtn || donatePopup.contains(e.target) || e.target === donateToggleBtn) return;
             
             isBlowing = true; bubbleSize = 20;
             wand.style.display = 'block'; wand.style.left = e.clientX + 'px'; wand.style.top = e.clientY + 'px';
@@ -486,7 +520,7 @@
         });
         
         gameArea.addEventListener('touchstart', (e) => {
-            if(e.target.tagName === 'A' || e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target) || boardPopup.contains(e.target) || e.target === boardToggleBtn) return;
+            if(e.target.tagName === 'A' || e.target === locationSelect || e.target === windSelect || e.target === chatInput || e.target === sendBtn || chatLog.contains(e.target) || boardPopup.contains(e.target) || e.target === boardToggleBtn || donatePopup.contains(e.target) || e.target === donateToggleBtn) return;
             const touch = e.touches[0];
             const mouseEvent = new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY });
             gameArea.dispatchEvent(mouseEvent);
